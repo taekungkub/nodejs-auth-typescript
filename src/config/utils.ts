@@ -4,9 +4,9 @@ export const secretJWT = process.env.SECRET_JWT;
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
 
-export function errorResponse(type: string, desc: any) {
+export function errorResponse(statusCode: Number = 404, type: string, desc: any) {
   return {
-    statusCode: 404,
+    statusCode: statusCode,
     detail: "Error",
     error: {
       type: type,
