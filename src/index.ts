@@ -6,7 +6,7 @@ import dbConnect from "./config/dbConnect";
 const app: Express = express();
 
 //------------ config ------------//
-dotenv.config();
+dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 

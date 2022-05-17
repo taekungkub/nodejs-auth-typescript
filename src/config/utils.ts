@@ -1,6 +1,6 @@
 import { Request } from "express";
 var jwt = require("jsonwebtoken");
-export const secretJWT = "foobarsuper";
+export const secretJWT = process.env.SECRET_JWT;
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
 
