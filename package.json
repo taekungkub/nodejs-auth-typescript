@@ -7,7 +7,6 @@
     "dev": "NODE_ENV=development nodemon",
     "build": "NODE_ENV=production tsc --project ./",
     "production": "NODE_ENV=production nodemon ./dist/index.js"
-
   },
   "keywords": [],
   "author": "",
