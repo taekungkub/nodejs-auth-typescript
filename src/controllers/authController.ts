@@ -8,6 +8,7 @@ import {
   signToken,
   hashPassword,
   comparePassword,
+  decodedJWT,
 } from "../config/utils";
 import { ERRORS } from "../config/Errors";
 import UserModel from "../models/UserModel";
@@ -24,16 +25,17 @@ export const login = async (req: Request, res: Response) => {
     return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.EMAIL_INVALID));
   }
 
-  const result = await UserModel.findOne({ email: user_email });
-  if (!result) {
+  const userData = await UserModel.findOne({ email: user_email });
+  if (!userData) {
     return res.json(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, ERRORS.INCORRECT_EMAIL_OR_PASSWORD));
   }
-  const isPassword = await comparePassword(user_password, result.password);
+  const isPassword = await comparePassword(user_password, userData.password);
   if (!isPassword) {
     return res.json(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, ERRORS.INCORRECT_EMAIL_OR_PASSWORD));
   }
 
-  const token = signToken({ result });
+  const token = signToken(userData);
+
   res.json(successResponse({ token }));
 };
 
@@ -79,12 +81,14 @@ export const activeUser = (req: Request, res: Response) => {
   res.json(successResponse({}));
 };
 
-export const userProfile = (req: Request, res: Response) => {
+export const userProfile = async (req: Request, res: Response) => {
   const token = getTokenBearer(req);
-  res.json(successResponse({ token }));
+  const { email }: any = await decodedJWT(token);
+  const userData = await UserModel.findOne({ email: email });
+  res.json(successResponse(userData));
 };
 
-export const changePassword = (req: Request, res: Response) => {
+export const changePassword = async (req: Request, res: Response) => {
   const { user_password, user_confirm_password }: User = req.body;
 
   if (!user_password || !user_confirm_password) {
@@ -97,7 +101,12 @@ export const changePassword = (req: Request, res: Response) => {
   if (!checkStrongPassword(user_password)) {
     return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.PASSWORD_NOT_STRONG));
   }
-  res.json(successResponse({}));
+
+  const token = getTokenBearer(req);
+  const { _id }: any = await decodedJWT(token);
+  const passwordHash = await hashPassword(user_password);
+  const userData = await UserModel.findByIdAndUpdate({ _id: _id }, { password: passwordHash });
+  res.json(successResponse("Change password success"));
 };
 
 export const resetPassword = (req: Request, res: Response) => {

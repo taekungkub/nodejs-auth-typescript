@@ -1,6 +1,6 @@
 import { Request } from "express";
 var jwt = require("jsonwebtoken");
-export const secretJWT = process.env.SECRET_JWT;
+export const secretJWT = process.env.SECRET_JWT || "foobarsuper";
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
 
@@ -39,8 +39,19 @@ export function getTokenBearer(req: Request) {
 }
 
 export function signToken(payload: any) {
-  const token = jwt.sign(payload, secretJWT, { expiresIn: "30m" });
+  const token = jwt.sign(payload.toJSON(), secretJWT, { expiresIn: "30m" });
   return token;
+}
+
+export function decodedJWT(token: any) {
+  return new Promise((resolve, reject) => {
+    jwt.verify(token, secretJWT, function (err: Error, decoded: any) {
+      if (err) {
+        reject(err);
+      }
+      resolve(decoded);
+    });
+  });
 }
 
 export function hashPassword(myPlaintextPassword: String) {

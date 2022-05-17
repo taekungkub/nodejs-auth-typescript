@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "dev": "NODE_ENV=development nodemon",
-    "build": "tsc --project ./"
+    "build": "NODE_ENV=production tsc --project ./",
+    "production": "NODE_ENV=production nodemon ./dist/index.js"
+
   },
   "keywords": [],
   "author": "",
