@@ -15,7 +15,7 @@ export function errorResponse(statusCode: Number = 404, type: string, desc: any)
   };
 }
 
-export function successResponse(data: object) {
+export function successResponse(data: any) {
   return {
     statusCode: 200,
     detail: "Success",
