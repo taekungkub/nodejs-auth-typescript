@@ -1,7 +1,7 @@
 import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
 var bodyParser = require("body-parser");
-import dbConnect from "./config/dbConnect";
+import { init } from "./config/dbConnect";
 
 const app: Express = express();
 
@@ -11,7 +11,13 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 //------------ Mongo Connection ------------//
-dbConnect();
+init()
+  .then(() => {
+    console.log("success");
+  })
+  .catch((error) => {
+    console.log(error);
+  });
 
 //------------ Routes ------------//
 app.use("/", require("./routes/index"));

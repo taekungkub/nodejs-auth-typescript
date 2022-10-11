@@ -39,7 +39,8 @@ export function getTokenBearer(req: Request) {
 }
 
 export function signToken(payload: any) {
-  const token = jwt.sign(payload.toJSON(), secretJWT, { expiresIn: "30m" });
+  delete payload.password
+  const token = jwt.sign(payload, secretJWT, { expiresIn: "30m" });
   return token;
 }
 
