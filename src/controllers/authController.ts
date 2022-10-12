@@ -44,6 +44,7 @@ export const login = async (req: Request, res: Response) => {
     const token = signToken(userData);
     res.json(successResponse({ token }));
   } catch (error) {
+    console.log(error);
     return res.json(errorResponse(404, ERRORS.TYPE.SERVER_ERROR, error));
   }
 };
@@ -107,9 +108,9 @@ export const register = async (req: Request, res: Response) => {
     const passwordHash = await hashPassword(user_password);
 
     let userList: Array<string | number> = (await test.getUsers()) as Array<string | number>;
+
     const existEmail = userList.find((v: any) => v.user_email === user_email);
     if (existEmail) return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.EMAIL_ALREADY_EXISTS));
-
     const tokenForVerify = signToken({ user_email });
     const result = await test.createUser({ ...req.body, user_password_hash: passwordHash });
     const result2 = await test.updateStatusVerify(false, user_email);
@@ -138,7 +139,6 @@ export const activeUser = async (req: Request, res: Response) => {
     const { user_email }: any = await decodedJWT(code);
 
     let userData: UserTy = (await test.getUser(user_email)) as UserTy;
-
     if (!userData) {
       return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, "We were unable to find a user for this verification. Please SignUp!"));
     } else if (userData.is_verify) {

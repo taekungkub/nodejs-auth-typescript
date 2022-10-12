@@ -5,13 +5,10 @@ const { v4: uuidv4 } = require("uuid");
 const createUser = (user: UserTy) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const rows = await conn.query("INSERT INTO tb_user (id, user_email, user_password, user_displayname , user_tel) VALUES (?,?,?,?,?)", [
-        uuidv4(),
-        user.user_email,
-        user.user_password_hash,
-        user.user_displayname,
-        user.user_tel,
-      ]);
+      const [rows] = await conn.query(
+        "INSERT INTO tb_user (id, user_email, user_password, user_displayname , user_tel) VALUES (?,?,?,?,?)",
+        [uuidv4(), user.user_email, user.user_password_hash, user.user_displayname, user.user_tel]
+      );
       resolve(rows);
     } catch (error) {
       reject(error);
@@ -22,9 +19,9 @@ const createUser = (user: UserTy) => {
 const getUser = (email: string) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const rows = await conn.query("SELECT * FROM tb_user WHERE user_email = ?", [email]);
+      const [rows] = await conn.query("SELECT * FROM tb_user WHERE user_email = ?", [email]);
       if (rows) {
-        resolve(rows[0][0]);
+        resolve(rows[0]);
       }
     } catch (error) {
       reject(error);
@@ -35,9 +32,9 @@ const getUser = (email: string) => {
 const getUsers = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      const rows = await conn.query("SELECT * FROM tb_user");
+      const [rows] = await conn.query("SELECT * FROM tb_user");
       if (rows) {
-        resolve(rows[0]);
+        resolve(rows);
       }
     } catch (error) {
       reject(error);
@@ -48,9 +45,9 @@ const getUsers = () => {
 const updatePassword = (id: string, password: string) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const rows = await conn.query("UPDATE tb_user SET user_password=? WHERE id = ?", [password, id]);
+      const [rows] = await conn.query("UPDATE tb_user SET user_password=? WHERE id = ?", [password, id]);
       if (rows) {
-        resolve(rows[0][0]);
+        resolve(rows[0]);
       }
     } catch (error) {
       reject(error);
@@ -61,7 +58,7 @@ const updatePassword = (id: string, password: string) => {
 const updateResetPasswordToken = (passwordToken: string, email: string) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const rows = await conn.query("UPDATE tb_user SET reset_password_token=? WHERE user_email = ?", [passwordToken, email]);
+      const [rows] = await conn.query("UPDATE tb_user SET reset_password_token=? WHERE user_email = ?", [passwordToken, email]);
       if (rows) {
         resolve(rows);
       }
@@ -74,7 +71,7 @@ const updateResetPasswordToken = (passwordToken: string, email: string) => {
 const removeResetPasswordToken = (email: string) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const rows = await conn.query("UPDATE tb_user SET reset_password_token=? WHERE user_email = ?", ["", email]);
+      const [rows] = await conn.query("UPDATE tb_user SET reset_password_token=? WHERE user_email = ?", ["", email]);
       if (rows) {
         resolve(rows);
       }
@@ -87,7 +84,7 @@ const removeResetPasswordToken = (email: string) => {
 const updateStatusVerify = (status: boolean, email: string) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const rows = await conn.query("UPDATE tb_user SET is_verify=? WHERE user_email = ?", [status, email]);
+      const [rows] = await conn.query("UPDATE tb_user SET is_verify=? WHERE user_email = ?", [status, email]);
       if (rows) {
         resolve(rows);
       }

@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const mysql = require("mysql2/promise");
+import mysql from "mysql2/promise";
 let conn: any;
 import dbConfig from "./dbConfig";
 
@@ -36,17 +36,15 @@ async function init() {
   });
 }
 
-
 async function teardown() {
-  return new Promise(async(resolve, rej) => {
-   try {
-    await conn.end()
-    resolve("")
-   } catch (error) {
-    rej(error)
-   }
+  return new Promise(async (resolve, rej) => {
+    try {
+      await conn.end();
+      resolve("");
+    } catch (error) {
+      rej(error);
+    }
   });
 }
 
-
-export { init, conn , teardown };
+export { init, conn, teardown };
