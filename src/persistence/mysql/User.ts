@@ -17,7 +17,7 @@ const createUser =  (user: UserTy) => {
 };
 
 
-const getUser = (email:any)=>{
+const getUser = (email:string)=>{
   return new Promise(async(resolve , reject)=>{
     try {
       const rows = await conn.query('SELECT * FROM tb_user WHERE user_email = ?' ,[email])
@@ -89,7 +89,28 @@ const removeResetPasswordToken =(email:string) =>{
       reject(error)
     }
   })
+
 }
+
+
+
+const updateStatusVerify =(status:boolean , email:string) =>{
+  return new Promise(async(resolve , reject)=>{
+    try {
+      const rows = await conn.query('UPDATE tb_user SET is_verify=? WHERE user_email = ?' ,[status , email])
+      if(rows) {
+        resolve(rows)
+      }
+    } catch (error) {
+      reject(error)
+    }
+  })
+}
+
+
+
+
+ 
 
 
 export default {
@@ -98,5 +119,6 @@ export default {
   getUser,
   updatePassword,
   updateResetPasswordToken,
-  removeResetPasswordToken
+  removeResetPasswordToken,
+  updateStatusVerify,
 };
