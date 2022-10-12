@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
-const mysql = require('mysql2/promise');
-let connection:any
+const mysql = require("mysql2/promise");
+let conn: any;
+import dbConfig from "./dbConfig";
 
 // const MongoURI =
 //   process.env.MONGODB_URL ||
@@ -15,36 +16,37 @@ let connection:any
 //     .catch((err: Error) => console.log(err));
 // }
 
-
-
-
 async function init() {
-  return new Promise(async (resolve,reject)=>{
-  try {
-    const _connection = await mysql.createConnection({
-      host: 'localhost',
-      user: 'root',
-      database: 'test',
-      password:"1234",
-      port:4000,
-    });
-    if(_connection) {
-      connection = _connection;
-      resolve(_connection)
+  return new Promise(async (resolve, reject) => {
+    try {
+      const connection = await mysql.createConnection({
+        host: dbConfig.host,
+        user: dbConfig.user,
+        database: dbConfig.database,
+        password: dbConfig.password,
+        port: dbConfig.port,
+      });
+      if (connection) {
+        conn = connection;
+        resolve(conn);
+      }
+    } catch (error) {
+      reject(error);
     }
-  } catch (error) {
-    reject(error)
-  }
-  })
-  
-
-
-
-
+  });
 }
 
 
-export  {
-  init,
-  connection
+async function teardown() {
+  return new Promise(async(resolve, rej) => {
+   try {
+    await conn.end()
+    resolve("")
+   } catch (error) {
+    rej(error)
+   }
+  });
 }
+
+
+export { init, conn , teardown };

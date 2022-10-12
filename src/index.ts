@@ -13,7 +13,7 @@ app.use(bodyParser.json());
 //------------ Mongo Connection ------------//
 init()
   .then(() => {
-    console.log("success");
+    console.log("DB is Connected");
   })
   .catch((error) => {
     console.log(error);
