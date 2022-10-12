@@ -3,6 +3,7 @@ export const ERRORS = {
     BAD_REQUEST: "BAD_REQUEST",
     RESOURCE_NOT_FOUND: "RESOURCE_NOT_FOUND",
     SERVER_ERROR: "SERVER_ERROR",
+    NOT_ALLOWED:"NOT_ALLOWED",
   },
   INCORRECT_EMAIL: "Incorrect email",
   PASSWORD_NOT_MATCH: "Password don't match.",
@@ -17,4 +18,6 @@ export const ERRORS = {
   TOKEN_INVALID: "Token invalid.",
   EMAIL_INVALID: "Email invalid format.",
   EMAIL_ALREADY_EXISTS: "Email already exists.",
+  METHOD_NOT_ALLOW:"Method not allowed. Must be one of: OPTIONS"
 };
+
