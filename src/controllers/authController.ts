@@ -115,21 +115,14 @@ export const resendVerify = async (req: Request, res: Response) => {
   if (!validator.isEmail(user_email)) {
     return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.EMAIL_INVALID));
   }
-
-
-
   const userData: UserTy = (await test.getUser(user_email)) as UserTy;
-
-
 
   if (!userData) {
     return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, "We were unable to find a user with that email. Make sure your Email is correct!"));
   } else if (userData.is_verify) {
     return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, "This email has been verify."));
   }
-
   const tokenForVerify = signToken({ user_email });
-
 
     res.json(
       successResponse({
@@ -137,10 +130,6 @@ export const resendVerify = async (req: Request, res: Response) => {
         token: tokenForVerify,
       })
     );
-
-
-
-
 };
 
 export const userProfile = async (req: Request, res: Response) => {
