@@ -3,8 +3,9 @@ export const ERRORS = {
     BAD_REQUEST: "BAD_REQUEST",
     RESOURCE_NOT_FOUND: "RESOURCE_NOT_FOUND",
     SERVER_ERROR: "SERVER_ERROR",
-    NOT_ALLOWED:"NOT_ALLOWED",
+    NOT_ALLOWED: "NOT_ALLOWED",
   },
+  NOT_FOUND_USER: "We were unable to find a user for this verification. Please SignUp!",
   INCORRECT_EMAIL: "Incorrect email",
   PASSWORD_NOT_MATCH: "Password don't match.",
   PASSWORD_NOT_STRONG:
@@ -18,6 +19,8 @@ export const ERRORS = {
   TOKEN_INVALID: "Token invalid.",
   EMAIL_INVALID: "Email invalid format.",
   EMAIL_ALREADY_EXISTS: "Email already exists.",
-  METHOD_NOT_ALLOW:"Method not allowed. Must be one of: OPTIONS"
+  EMAIL_IS_NOT_VERIFY: "This email not verify. Please check your email for verify.",
+  EMAIL_IS_VERIFY: "This email has been verify.",
+  METHOD_NOT_ALLOW: "Method not allowed. Must be one of: OPTIONS",
+  LINK_HAS_BEEN_DESTROYED: "This link has been destroyed.",
 };
-

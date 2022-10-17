@@ -26,7 +26,7 @@ export const login = async (req: Request, res: Response) => {
     }
 
     if (!userData.is_verify) {
-      return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, "This email not verify. Please check your email for verify."));
+      return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.EMAIL_IS_NOT_VERIFY));
     }
 
     const token = signToken(userData);
@@ -53,6 +53,8 @@ export const createUser = async (req: Request, res: Response) => {
     if (existEmail) return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.EMAIL_ALREADY_EXISTS));
 
     const result = await test.createUser({ ...req.body, user_password_hash: passwordHash });
+    const result2 = await test.updateStatusVerify(false, user_email);
+
     if (result) {
       res.json(successResponse("Create user success."));
     }
@@ -104,9 +106,9 @@ export const activeUser = async (req: Request, res: Response) => {
 
     let userData: UserTy = (await test.getUser(user_email)) as UserTy;
     if (!userData) {
-      return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, "We were unable to find a user for this verification. Please SignUp!"));
+      return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.NOT_FOUND_USER));
     } else if (userData.is_verify) {
-      return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, "This email has been verify."));
+      return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.EMAIL_IS_VERIFY));
     }
 
     const result = await test.updateStatusVerify(true, user_email);
@@ -223,7 +225,7 @@ export const changePasswordWithCode = async (req: Request, res: Response) => {
     let userData: UserTy = (await test.getUser(user_email)) as UserTy;
 
     if (!userData.reset_password_token) {
-      return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, "This link has been destroyed."));
+      return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.LINK_HAS_BEEN_DESTROYED));
     }
 
     const result = await test.removeResetPasswordToken(user_email);
