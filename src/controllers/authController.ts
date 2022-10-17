@@ -1,15 +1,6 @@
 import { Request, Response } from "express";
-import { UserTy } from "../Types/User";
-import {
-  errorResponse,
-  successResponse,
-  checkStrongPassword,
-  getTokenBearer,
-  signToken,
-  hashPassword,
-  comparePassword,
-  decodedJWT,
-} from "../config/utils";
+import { ChangepasswordSchemaBody, LoginSchemaBody, RegisterSchemaBody, UserTy } from "../Types/User";
+import { errorResponse, successResponse, getTokenBearer, signToken, hashPassword, comparePassword, decodedJWT } from "../config/utils";
 import { ERRORS } from "../config/Errors";
 import UserModel from "../models/UserModel";
 let validator = require("validator");
@@ -19,15 +10,12 @@ export const login = async (req: Request, res: Response) => {
   try {
     const { user_email, user_password }: UserTy = req.body;
 
-    if (!user_email || !user_password) {
-      return res.json(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, ERRORS.INCORRECT_EMAIL_OR_PASSWORD));
+    const { error }: any = LoginSchemaBody.validate(req.body);
+
+    if (error) {
+      return res.json(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, error.message));
     }
 
-    if (!validator.isEmail(user_email)) {
-      return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.EMAIL_INVALID));
-    }
-
-    // const userData = await UserModel.findOne({ email: user_email });
     const userData: UserTy = (await test.getUser(user_email)) as UserTy;
     if (!userData) {
       return res.json(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, ERRORS.INCORRECT_EMAIL_OR_PASSWORD));
@@ -42,7 +30,8 @@ export const login = async (req: Request, res: Response) => {
     }
 
     const token = signToken(userData);
-    res.json(successResponse({ token }));
+
+    res.send(successResponse({ token }));
   } catch (error) {
     console.log(error);
     return res.json(errorResponse(404, ERRORS.TYPE.SERVER_ERROR, error));
@@ -53,26 +42,11 @@ export const createUser = async (req: Request, res: Response) => {
   try {
     const { user_email, user_password, user_confirm_password, user_displayname, user_tel }: UserTy = req.body;
 
-    if (!user_email || !user_password) {
-      return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.PASSWORD_NOT_MATCH));
-    }
-
-    if (!validator.isEmail(user_email)) {
-      return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.EMAIL_INVALID));
-    }
-
-    if (user_password != user_confirm_password) {
-      return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.PASSWORD_NOT_MATCH));
-    }
-    if (!checkStrongPassword(user_password)) {
-      return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.PASSWORD_NOT_STRONG));
+    const { error }: any = RegisterSchemaBody.validate(req.body);
+    if (error) {
+      return res.json(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, error.message));
     }
     const passwordHash = await hashPassword(user_password);
-
-    // UserModel.create({ displayname: user_displayname, email: user_email, password: passwordHash }, function (err: Error, result: String) {
-    //   if (err) throw err;
-    //   res.json(successResponse({ result }));
-    // });
 
     let userList: Array<string | number> = (await test.getUsers()) as Array<string | number>;
     const existEmail = userList.find((v: any) => v.user_email === user_email);
@@ -91,19 +65,9 @@ export const register = async (req: Request, res: Response) => {
   try {
     const { user_email, user_password, user_confirm_password, user_displayname, user_tel }: UserTy = req.body;
 
-    if (!user_email || !user_password) {
-      return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.PASSWORD_NOT_MATCH));
-    }
-
-    if (!validator.isEmail(user_email)) {
-      return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.EMAIL_INVALID));
-    }
-
-    if (user_password != user_confirm_password) {
-      return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.PASSWORD_NOT_MATCH));
-    }
-    if (!checkStrongPassword(user_password)) {
-      return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.PASSWORD_NOT_STRONG));
+    const { error } = RegisterSchemaBody.validate(req.body);
+    if (error) {
+      return res.json(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, error.message));
     }
     const passwordHash = await hashPassword(user_password);
 
@@ -193,7 +157,6 @@ export const userProfile = async (req: Request, res: Response) => {
     const token = getTokenBearer(req);
 
     const decodeToken: any = await decodedJWT(token);
-    // const userData = await UserModel.findOne({ email: email });
     res.json(successResponse(decodeToken));
   } catch (error) {
     return res.json(errorResponse(404, ERRORS.TYPE.SERVER_ERROR, error));
@@ -204,21 +167,15 @@ export const changePassword = async (req: Request, res: Response) => {
   try {
     const { user_password, user_confirm_password }: UserTy = req.body;
 
-    if (!user_password || !user_confirm_password) {
-      return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.PASSWORD_NOT_MATCH));
-    }
+    const { error }: any = ChangepasswordSchemaBody.validate(req.body);
 
-    if (user_password != user_confirm_password) {
-      return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.PASSWORD_NOT_MATCH));
-    }
-    if (!checkStrongPassword(user_password)) {
-      return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.PASSWORD_NOT_STRONG));
+    if (error) {
+      return res.json(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, error.message));
     }
 
     const token = getTokenBearer(req);
-    const { id }: any = await decodedJWT(token);
-    const passwordHash: any = await hashPassword(user_password);
-    // const userData = await UserModel.findByIdAndUpdate({ _id: _id }, { password: passwordHash });
+    const { id }: UserTy = (await decodedJWT(token)) as UserTy;
+    const passwordHash: string = (await hashPassword(user_password)) as string;
     const result = await test.updatePassword(passwordHash, id);
     res.json(successResponse("Change password success"));
   } catch (error) {
@@ -255,18 +212,12 @@ export const changePasswordWithCode = async (req: Request, res: Response) => {
       return res.json(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, ERRORS.PASSWORD_RESET_LINK_INVALID));
     }
 
-    const { user_email }: any = await decodedJWT(code);
+    const { user_email }: UserTy = (await decodedJWT(code)) as UserTy;
 
-    if (!user_password || !user_confirm_password) {
-      return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.PASSWORD_NOT_MATCH));
-    }
+    const { error }: any = ChangepasswordSchemaBody.validate(req.body);
 
-    if (user_password != user_confirm_password) {
-      return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.PASSWORD_NOT_MATCH));
-    }
-
-    if (!checkStrongPassword(user_password)) {
-      return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.PASSWORD_NOT_STRONG));
+    if (error) {
+      return res.json(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, error.message));
     }
 
     let userData: UserTy = (await test.getUser(user_email)) as UserTy;

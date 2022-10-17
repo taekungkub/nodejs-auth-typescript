@@ -23,11 +23,6 @@ export function successResponse(data: any) {
   };
 }
 
-export function checkStrongPassword(password: string) {
-  const strongPassword = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,}$");
-  return strongPassword.test(password);
-}
-
 export function getTokenBearer(req: Request) {
   const bearerHeader = req.headers["authorization"];
 
@@ -39,15 +34,15 @@ export function getTokenBearer(req: Request) {
 }
 
 export function signToken(payload: any) {
-try {
-  delete payload.user_password;
-  delete payload.verify_token;
-  delete payload.reset_password_token
-  const token = jwt.sign(payload, secretJWT, { expiresIn: "1h" });
-  return token;
-} catch (error) {
-  console.log(error);
-}
+  try {
+    delete payload.user_password;
+    delete payload.verify_token;
+    delete payload.reset_password_token;
+    const token = jwt.sign(payload, secretJWT, { expiresIn: "1h" });
+    return token;
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 export function decodedJWT(token: any) {

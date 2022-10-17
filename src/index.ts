@@ -1,17 +1,17 @@
 import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
 var bodyParser = require("body-parser");
-import { init } from "./config/dbConnect";
+import * as db from "./config/dbConnect";
 
 const app: Express = express();
 
-//------------ config ------------//
+//------------ Config -------------------//
 dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-//------------ Mongo Connection ------------//
-init()
+//------------ DB Connection ------------//
+db.init()
   .then(() => {
     console.log("DB is Connected");
   })
@@ -19,10 +19,12 @@ init()
     console.log(error);
   });
 
-//------------ Routes ------------//
+//------------ Routes -------------------//
 app.use("/", require("./routes/index"));
 app.use("/auth", require("./routes/auth"));
+app.use("/products", require("./routes/product"));
 
+//------------ Port ---------------------//
 const port = process.env.PORT || 8000;
 app.listen(port, () => {
   console.log(`⚡️[server]: Server is running at http://localhost:${port} mode ${process.env.NODE_ENV}`);
