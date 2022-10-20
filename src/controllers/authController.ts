@@ -5,6 +5,7 @@ import { ERRORS } from "../config/Errors";
 import UserModel from "../models/UserModel";
 let validator = require("validator");
 import test from "../persistence/mysql/User";
+import onSendVerifyToEmail from "../config/sendMail";
 
 export const login = async (req: Request, res: Response) => {
   try {
@@ -16,7 +17,7 @@ export const login = async (req: Request, res: Response) => {
       return res.json(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, error.message));
     }
 
-    const userData: UserTy = (await test.getUser(user_email)) as UserTy;
+    const userData: UserTy = (await test.getUserByEmail(user_email)) as UserTy;
     if (!userData) {
       return res.json(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, ERRORS.INCORRECT_EMAIL_OR_PASSWORD));
     }
@@ -40,8 +41,8 @@ export const login = async (req: Request, res: Response) => {
 
 export const createUser = async (req: Request, res: Response) => {
   try {
-    const { user_email, user_password, user_confirm_password, user_displayname, user_tel }: UserTy = req.body;
-
+    const { user_email, user_password, user_confirm_password, user_displayname, user_tel, is_verify }: UserTy = req.body;
+    const { role_id }: any = req.body;
     const { error }: any = RegisterSchemaBody.validate(req.body);
     if (error) {
       return res.json(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, error.message));
@@ -52,10 +53,14 @@ export const createUser = async (req: Request, res: Response) => {
     const existEmail = userList.find((v: any) => v.user_email === user_email);
     if (existEmail) return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.EMAIL_ALREADY_EXISTS));
 
-    const result = await test.createUser({ ...req.body, user_password_hash: passwordHash });
-    const result2 = await test.updateStatusVerify(false, user_email);
+    const result: any = await test.createUser({ ...req.body, user_password_hash: passwordHash });
+    const result2 = await test.updateStatusVerify(!is_verify ? false : true, user_email);
 
     if (result) {
+      if (role_id) {
+        const result3 = await test.addRoleUser(role_id, result.insertId);
+      }
+
       res.json(successResponse("Create user success."));
     }
   } catch (error) {
@@ -82,7 +87,10 @@ export const register = async (req: Request, res: Response) => {
     const result2 = await test.updateStatusVerify(false, user_email);
 
     //send email with token
+
     if (result) {
+      onSendVerifyToEmail(user_email, tokenForVerify);
+
       res.json(
         successResponse({
           description: "Register success. Please check your email for verify.",
@@ -104,7 +112,7 @@ export const activeUser = async (req: Request, res: Response) => {
 
     const { user_email }: any = await decodedJWT(code);
 
-    let userData: UserTy = (await test.getUser(user_email)) as UserTy;
+    let userData: UserTy = (await test.getUserByEmail(user_email)) as UserTy;
     if (!userData) {
       return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.NOT_FOUND_USER));
     } else if (userData.is_verify) {
@@ -134,7 +142,7 @@ export const resendVerify = async (req: Request, res: Response) => {
   if (!validator.isEmail(user_email)) {
     return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.EMAIL_INVALID));
   }
-  const userData: UserTy = (await test.getUser(user_email)) as UserTy;
+  const userData: UserTy = (await test.getUserByEmail(user_email)) as UserTy;
 
   if (!userData) {
     return res.json(
@@ -146,6 +154,9 @@ export const resendVerify = async (req: Request, res: Response) => {
 
   //send email with token
   const tokenForVerify = signToken({ user_email });
+
+  onSendVerifyToEmail(user_email, tokenForVerify);
+
   res.json(
     successResponse({
       description: "Register success. Please check your email for verify.",
@@ -159,7 +170,8 @@ export const userProfile = async (req: Request, res: Response) => {
     const token = getTokenBearer(req);
 
     const decodeToken: any = await decodedJWT(token);
-    res.json(successResponse(decodeToken));
+    const result = await test.getUserByEmail(decodeToken.user_email);
+    res.json(successResponse(result));
   } catch (error) {
     return res.json(errorResponse(404, ERRORS.TYPE.SERVER_ERROR, error));
   }
@@ -179,7 +191,9 @@ export const changePassword = async (req: Request, res: Response) => {
     const { id }: UserTy = (await decodedJWT(token)) as UserTy;
     const passwordHash: string = (await hashPassword(user_password)) as string;
     const result = await test.updatePassword(passwordHash, id);
-    res.json(successResponse("Change password success"));
+    if (result) {
+      res.json(successResponse("Change password success"));
+    }
   } catch (error) {
     return res.json(errorResponse(404, ERRORS.TYPE.SERVER_ERROR, error));
   }
@@ -222,7 +236,7 @@ export const changePasswordWithCode = async (req: Request, res: Response) => {
       return res.json(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, error.message));
     }
 
-    let userData: UserTy = (await test.getUser(user_email)) as UserTy;
+    let userData: UserTy = (await test.getUserByEmail(user_email)) as UserTy;
 
     if (!userData.reset_password_token) {
       return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.LINK_HAS_BEEN_DESTROYED));
@@ -230,6 +244,22 @@ export const changePasswordWithCode = async (req: Request, res: Response) => {
 
     const result = await test.removeResetPasswordToken(user_email);
     res.json(successResponse("Change password success"));
+  } catch (error) {
+    return res.json(errorResponse(404, ERRORS.TYPE.SERVER_ERROR, error));
+  }
+};
+
+export const changeProfile = async (req: any, res: Response) => {
+  try {
+    const userData: UserTy = req.body;
+    const token = getTokenBearer(req);
+    const { id }: any = await decodedJWT(token);
+    userData.id = id;
+
+    const result = await test.updateProfile(userData);
+    if (result) {
+      res.json(successResponse("Change profile success"));
+    }
   } catch (error) {
     return res.json(errorResponse(404, ERRORS.TYPE.SERVER_ERROR, error));
   }

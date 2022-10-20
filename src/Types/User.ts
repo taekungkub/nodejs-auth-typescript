@@ -12,6 +12,7 @@ export type UserTy = {
   user_password_hash: string;
   reset_password_token: string;
   is_verify: boolean;
+  role_id: string;
 };
 
 export const LoginSchemaBody = Joi.object<UserTy>({
@@ -27,8 +28,10 @@ export const RegisterSchemaBody = Joi.object<UserTy>({
   user_confirm_password: Joi.valid(Joi.ref("user_password")).messages({
     "any.only": ERRORS.PASSWORD_NOT_MATCH,
   }),
-  user_displayname: Joi.string(),
-  user_tel: Joi.string(),
+  user_displayname: Joi.allow(""),
+  user_tel: Joi.allow(),
+  is_verify: Joi.allow(),
+  role_id: Joi.allow(),
 });
 
 export const ChangepasswordSchemaBody = Joi.object<UserTy>({

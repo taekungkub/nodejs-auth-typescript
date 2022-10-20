@@ -2,6 +2,7 @@ import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
 var bodyParser = require("body-parser");
 import * as db from "./config/dbConnect";
+var cors = require("cors");
 
 const app: Express = express();
 
@@ -9,6 +10,7 @@ const app: Express = express();
 dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use(cors());
 
 //------------ DB Connection ------------//
 db.init()
@@ -23,6 +25,7 @@ db.init()
 app.use("/", require("./routes/index"));
 app.use("/auth", require("./routes/auth"));
 app.use("/products", require("./routes/product"));
+app.use("/users", require("./routes/user"));
 
 //------------ Port ---------------------//
 const port = process.env.PORT || 8000;

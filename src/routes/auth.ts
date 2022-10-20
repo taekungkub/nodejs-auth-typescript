@@ -13,5 +13,6 @@ router.post("/password/reset", authController.resetPassword);
 router.post("/password/new/:code?", authController.changePasswordWithCode);
 router.post("/register", authController.register);
 router.post("/resend/verify", authController.resendVerify);
+router.post("/changeprofile", authController.changeProfile);
 
 module.exports = router;

@@ -5,7 +5,14 @@ import { UserTy } from "../../Types/User";
 export const getProducts = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      const [rows] = await conn.query("SELECT * FROM tb_product");
+      // const [rows] = await conn.query("SELECT * FROM tb_product");
+      const [rows] = await conn.query(`
+      SELECT *
+      FROM tb_product_category
+      INNER JOIN tb_product
+      ON tb_product.id = tb_product_category.product_id;
+      `);
+
       if (rows) {
         resolve(rows);
       }

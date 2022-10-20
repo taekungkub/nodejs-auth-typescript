@@ -18,10 +18,22 @@ const createUser = (user: UserTy) => {
   });
 };
 
-const getUser = (email: string) => {
+const getUserByEmail = (email: string) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const [rows] = await conn.query("SELECT * FROM tb_user WHERE user_email = ?", [email]);
+      // const [rows] = await conn.query("SELECT * FROM tb_user WHERE user_email = ?", [email]);
+      const [rows] = await conn.query(
+        `
+      SELECT *
+      FROM tb_user
+      LEFT OUTER JOIN tb_role_user
+      ON tb_user.id = tb_role_user.user_id
+      LEFT OUTER JOIN tb_role
+      ON tb_role_user.role_id = tb_role.role_id
+      WHERE user_email = ?
+      `,
+        [email]
+      );
       if (rows) {
         resolve(rows[0]);
       }
@@ -34,7 +46,13 @@ const getUser = (email: string) => {
 const getUsers = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      const [rows] = await conn.query("SELECT * FROM tb_user");
+      const [rows] = await conn.query(`
+      SELECT * FROM tb_user 
+      LEFT OUTER JOIN tb_role_user
+      ON tb_user.id = tb_role_user.user_id
+      LEFT OUTER JOIN tb_role
+      ON tb_role_user.role_id = tb_role.role_id
+      `);
       if (rows) {
         resolve(rows);
       }
@@ -44,12 +62,12 @@ const getUsers = () => {
   });
 };
 
-const updatePassword = (id: string, password: string) => {
+const updatePassword = (password: string, id: string) => {
   return new Promise(async (resolve, reject) => {
     try {
       const [rows] = await conn.query("UPDATE tb_user SET user_password=? WHERE id = ?", [password, id]);
       if (rows) {
-        resolve(rows[0]);
+        resolve(rows);
       }
     } catch (error) {
       reject(error);
@@ -96,12 +114,111 @@ const updateStatusVerify = (status: boolean, email: string) => {
   });
 };
 
+const updateProfile = (userData: UserTy) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const [rows] = await conn.query("UPDATE tb_user SET ? WHERE id = ?", [userData, userData.id]);
+      if (rows) {
+        resolve(rows);
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+const updateUser = (userData: UserTy, id: string) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const [rows] = await conn.query("UPDATE tb_user SET user_displayname=?, user_tel=?,is_verify=? WHERE id = ?", [
+        userData.user_displayname,
+        userData.user_tel,
+        userData.is_verify,
+        id,
+      ]);
+      if (rows) {
+        resolve(rows);
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+const removeUser = (id: String) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const [rows] = await conn.query("DELETE FROM tb_user  WHERE id = ?", [id]);
+      if (rows) {
+        resolve(rows);
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+const addRoleUser = (roleId: String, userId: string) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const [rows] = await conn.query("INSERT INTO tb_role_user ( role_id, user_id) VALUES (?,?)", [roleId, userId]);
+      if (rows) {
+        resolve(rows);
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+const updateRoleUser = (roleId: String, userId: string) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const [rows] = await conn.query("UPDATE tb_role_user SET role_id=?  WHERE user_id = ?", [roleId, userId]);
+      if (rows) {
+        resolve(rows);
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+const getUserById = (id: string) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const [rows] = await conn.query(
+        `
+      SELECT *
+      FROM tb_user
+      LEFT OUTER JOIN tb_role_user
+      ON tb_user.id = tb_role_user.user_id
+      LEFT OUTER JOIN tb_role
+      ON tb_role_user.role_id = tb_role.role_id
+      WHERE id = ?
+      `,
+        [id]
+      );
+      if (rows) {
+        resolve(rows[0]);
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
 export default {
   createUser,
   getUsers,
-  getUser,
+  getUserByEmail,
+  getUserById,
   updatePassword,
   updateResetPasswordToken,
   removeResetPasswordToken,
   updateStatusVerify,
+  updateProfile,
+  removeUser,
+  addRoleUser,
+  updateRoleUser,
+  updateUser,
 };
