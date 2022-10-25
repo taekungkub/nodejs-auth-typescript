@@ -4,7 +4,7 @@ import { ERRORS } from "../config/Errors";
 import { successResponse, errorResponse } from "../config/utils";
 const router = Router();
 import * as test from "../persistence/mysql/Product";
-import { ProductSchemaBody, ProductTy } from "../Types/Product";
+import { ProductSchemaBody, ProductTy } from "../Types/ProductTy";
 
 //------------ Product Route ------------//
 router.get("/", async (req: Request, res: Response) => {
@@ -29,6 +29,7 @@ router.get("/:id", async (req: Request, res: Response) => {
 router.post("/", async (req: Request, res: Response) => {
   try {
     const productData: ProductTy = req.body;
+
     const { error }: any = ProductSchemaBody.validate(req.body);
     if (error) {
       return res.json(
@@ -39,10 +40,13 @@ router.post("/", async (req: Request, res: Response) => {
       );
     }
 
-    const result = await test.createProduct(productData);
+    const result: any = await test.createProduct(productData);
+
     if (!result) {
       return res.send(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, "Product not found"));
     }
+    const result2 = await test.addProductCatagory(result.insertId, productData);
+
     res.send(successResponse(result));
   } catch (error) {
     console.log(error);

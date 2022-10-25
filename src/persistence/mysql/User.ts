@@ -1,5 +1,5 @@
 import { conn } from "../../config/dbConnect";
-import { UserTy } from "../../Types/User";
+import { UserTy } from "../../Types/UserTy";
 const { v4: uuidv4 } = require("uuid");
 
 const createUser = (user: UserTy) => {

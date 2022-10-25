@@ -1,5 +1,6 @@
+import { string } from "joi";
 import { conn } from "../../config/dbConnect";
-import { ProductTy } from "../../Types/Product";
+import { ProductTy } from "../../Types/ProductTy";
 
 export const getProducts = () => {
   return new Promise(async (resolve, reject) => {
@@ -73,6 +74,20 @@ export const removeProduct = (id: String) => {
       if (rows) {
         resolve(rows);
       }
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+export const addProductCatagory = (productId: number, productData: ProductTy) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const [rows] = await conn.query("INSERT INTO tb_product_category (product_id , category_id) VALUES (?,?)", [
+        productId,
+        productData.category_id,
+      ]);
+      resolve(rows);
     } catch (error) {
       reject(error);
     }

@@ -1,8 +1,7 @@
 import { Request, Response } from "express";
-import { ChangepasswordSchemaBody, LoginSchemaBody, RegisterSchemaBody, UserTy } from "../Types/User";
+import { ChangepasswordSchemaBody, LoginSchemaBody, RegisterSchemaBody, UserTy } from "../Types/UserTy";
 import { errorResponse, successResponse, getTokenBearer, signToken, hashPassword, comparePassword, decodedJWT } from "../config/utils";
 import { ERRORS } from "../config/Errors";
-import UserModel from "../models/UserModel";
 let validator = require("validator");
 import test from "../persistence/mysql/User";
 import onSendVerifyToEmail from "../config/sendMail";
