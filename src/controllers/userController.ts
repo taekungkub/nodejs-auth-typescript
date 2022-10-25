@@ -2,9 +2,7 @@ import { Request, Response } from "express";
 import { RegisterSchemaBody, UserTy } from "../Types/User";
 import { errorResponse, successResponse, getTokenBearer, signToken, hashPassword, comparePassword, decodedJWT } from "../config/utils";
 import { ERRORS } from "../config/Errors";
-let validator = require("validator");
 import test from "../persistence/mysql/User";
-import { text } from "body-parser";
 
 export const createUser = async (req: Request, res: Response) => {
   try {
@@ -38,9 +36,10 @@ export const createUser = async (req: Request, res: Response) => {
 export const getAllUser = async (req: Request, res: Response) => {
   try {
     const result = await test.getUsers();
-    if (result) {
-      res.send(successResponse(result));
+    if (!result) {
+      return res.send(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, "User not found"));
     }
+    res.send(successResponse(result));
   } catch (error) {
     return res.json(errorResponse(400, ERRORS.TYPE.BAD_REQUEST, error));
   }
@@ -50,6 +49,9 @@ export const getUserById = async (req: Request, res: Response) => {
   try {
     const id = req.params.id;
     const result = await test.getUserById(id);
+    if (!result) {
+      return res.send(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, "User not found"));
+    }
     res.send(successResponse(result));
   } catch (error) {
     res.send(error);
@@ -62,6 +64,11 @@ export const updateUser = async (req: Request, res: Response) => {
     const userId = req.params.id;
     const { role_id } = req.body;
     const result = await test.updateUser(userData, userId);
+
+    if (!result) {
+      return res.send(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, "User not found"));
+    }
+
     if (role_id) {
       const userData: UserTy = (await test.getUserById(userId)) as UserTy;
       if (!userData.role_id) {
@@ -81,9 +88,10 @@ export const removeUser = async (req: Request, res: Response) => {
   try {
     const userId = req.params.id;
     const result = await test.removeUser(userId);
-    if (result) {
-      res.send(successResponse(result));
+    if (!result) {
+      return res.send(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, "User not found"));
     }
+    res.send(successResponse(result));
   } catch (error) {
     return res.json(errorResponse(400, ERRORS.TYPE.BAD_REQUEST, error));
   }

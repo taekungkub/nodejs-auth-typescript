@@ -1,6 +1,5 @@
 import { conn } from "../../config/dbConnect";
 import { ProductTy } from "../../Types/Product";
-import { UserTy } from "../../Types/User";
 
 export const getProducts = () => {
   return new Promise(async (resolve, reject) => {
@@ -44,8 +43,8 @@ export const createProduct = (item: ProductTy) => {
   return new Promise(async (resolve, reject) => {
     try {
       const [rows] = await conn.query(
-        "INSERT INTO tb_product ( userId , title, metaTitle, price , discount , quantity , createdAt) VALUES (?,?,?,?,?,?,?)",
-        [item.userId, item.title, item.metaTitle, item.price, item.discount, item.quantity, item.createdAt]
+        "INSERT INTO tb_product ( userId , title, metaTitle, price , discount , quantity , createdAt) VALUES (?,?,?,?,?,?,NOW())",
+        [item.userId, item.title, item.metaTitle, item.price, item.discount, item.quantity]
       );
       resolve(rows);
     } catch (error) {

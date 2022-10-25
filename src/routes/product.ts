@@ -9,12 +9,18 @@ import { ProductSchemaBody, ProductTy } from "../Types/Product";
 //------------ Product Route ------------//
 router.get("/", async (req: Request, res: Response) => {
   const result = await test.getProducts();
+  if (!result) {
+    return res.send(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, "Product not found"));
+  }
   res.send(successResponse(result));
 });
 router.get("/:id", async (req: Request, res: Response) => {
   try {
     const id = req.params.id;
     const result = await test.getProduct(id);
+    if (!result) {
+      return res.send(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, "Product not found"));
+    }
     res.send(successResponse(result));
   } catch (error) {
     res.send(error);
@@ -34,6 +40,9 @@ router.post("/", async (req: Request, res: Response) => {
     }
 
     const result = await test.createProduct(productData);
+    if (!result) {
+      return res.send(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, "Product not found"));
+    }
     res.send(successResponse(result));
   } catch (error) {
     console.log(error);
@@ -58,7 +67,7 @@ router.put("/:id", async (req: Request, res: Response) => {
 
     const find = await test.getProduct(id);
     if (!find) {
-      return res.json(errorResponse(400, ERRORS.TYPE.BAD_REQUEST, "Not found product"));
+      return res.json(errorResponse(400, ERRORS.TYPE.RESOURCE_NOT_FOUND, "Not found product"));
     }
 
     const result = await test.updateProduct(productData, id);
@@ -73,7 +82,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
 
     const find = await test.getProduct(id);
     if (!find) {
-      return res.json(errorResponse(400, ERRORS.TYPE.BAD_REQUEST, "Not found product"));
+      return res.json(errorResponse(400, ERRORS.TYPE.RESOURCE_NOT_FOUND, "Not found product"));
     }
 
     const result = await test.removeProduct(id);

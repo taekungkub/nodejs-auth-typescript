@@ -5,12 +5,10 @@ const { v4: uuidv4 } = require("uuid");
 const createUser = (user: UserTy) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const [rows] = await conn.query("INSERT INTO tb_user ( user_email, user_password, user_displayname , user_tel) VALUES (?,?,?,?)", [
-        user.user_email,
-        user.user_password_hash,
-        user.user_displayname,
-        user.user_tel,
-      ]);
+      const [rows] = await conn.query(
+        "INSERT INTO tb_user ( user_email, user_password, user_displayname , user_tel  , user_created) VALUES (?,?,?,?,NOW())",
+        [user.user_email, user.user_password_hash, user.user_displayname, user.user_tel]
+      );
       resolve(rows);
     } catch (error) {
       reject(error);

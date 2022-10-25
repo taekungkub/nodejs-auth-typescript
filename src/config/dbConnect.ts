@@ -25,6 +25,7 @@ async function init() {
         database: dbConfig.database,
         password: dbConfig.password,
         port: dbConfig.port,
+        timezone: dbConfig.timezone,
       });
       if (connection) {
         conn = connection;

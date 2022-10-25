@@ -6,6 +6,7 @@ import UserModel from "../models/UserModel";
 let validator = require("validator");
 import test from "../persistence/mysql/User";
 import onSendVerifyToEmail from "../config/sendMail";
+import * as log from "../persistence/mysql/Log";
 
 export const login = async (req: Request, res: Response) => {
   try {
@@ -29,41 +30,13 @@ export const login = async (req: Request, res: Response) => {
     if (!userData.is_verify) {
       return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.EMAIL_IS_NOT_VERIFY));
     }
-
     const token = signToken(userData);
+
+    await log.createLog(userData.id, "LOGIN");
 
     res.send(successResponse({ token }));
   } catch (error) {
     console.log(error);
-    return res.json(errorResponse(404, ERRORS.TYPE.SERVER_ERROR, error));
-  }
-};
-
-export const createUser = async (req: Request, res: Response) => {
-  try {
-    const { user_email, user_password, user_confirm_password, user_displayname, user_tel, is_verify }: UserTy = req.body;
-    const { role_id }: any = req.body;
-    const { error }: any = RegisterSchemaBody.validate(req.body);
-    if (error) {
-      return res.json(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, error.message));
-    }
-    const passwordHash = await hashPassword(user_password);
-
-    let userList: Array<string | number> = (await test.getUsers()) as Array<string | number>;
-    const existEmail = userList.find((v: any) => v.user_email === user_email);
-    if (existEmail) return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.EMAIL_ALREADY_EXISTS));
-
-    const result: any = await test.createUser({ ...req.body, user_password_hash: passwordHash });
-    const result2 = await test.updateStatusVerify(!is_verify ? false : true, user_email);
-
-    if (result) {
-      if (role_id) {
-        const result3 = await test.addRoleUser(role_id, result.insertId);
-      }
-
-      res.json(successResponse("Create user success."));
-    }
-  } catch (error) {
     return res.json(errorResponse(404, ERRORS.TYPE.SERVER_ERROR, error));
   }
 };
@@ -118,8 +91,8 @@ export const activeUser = async (req: Request, res: Response) => {
     } else if (userData.is_verify) {
       return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.EMAIL_IS_VERIFY));
     }
-
     const result = await test.updateStatusVerify(true, user_email);
+    await log.createLog(userData.id, "USER IS VERIFIED");
 
     res.json(
       successResponse({
@@ -151,6 +124,8 @@ export const resendVerify = async (req: Request, res: Response) => {
   } else if (userData.is_verify) {
     return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, "This email has been verify."));
   }
+
+  await log.createLog(userData.id, "USER IS RESEND VERIFY");
 
   //send email with token
   const tokenForVerify = signToken({ user_email });
@@ -189,6 +164,8 @@ export const changePassword = async (req: Request, res: Response) => {
 
     const token = getTokenBearer(req);
     const { id }: UserTy = (await decodedJWT(token)) as UserTy;
+    await log.createLog(id, "USER CHANGE PASSWORD");
+
     const passwordHash: string = (await hashPassword(user_password)) as string;
     const result = await test.updatePassword(passwordHash, id);
     if (result) {
@@ -201,13 +178,15 @@ export const changePassword = async (req: Request, res: Response) => {
 
 export const resetPassword = async (req: Request, res: Response) => {
   try {
-    const { user_email }: UserTy = req.body;
+    const { id, user_email }: UserTy = req.body;
 
     if (!user_email) {
       return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.INCORRECT_EMAIL));
     }
     const tokenForReset = signToken({ user_email });
     const result = await test.updateResetPasswordToken(tokenForReset, user_email);
+    await log.createLog(id, "USER REQUEST RESET PASSWORD");
+
     res.json(
       successResponse({
         desciption: "We're send link for reset password. Plesase check your email",
@@ -242,6 +221,8 @@ export const changePasswordWithCode = async (req: Request, res: Response) => {
       return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.LINK_HAS_BEEN_DESTROYED));
     }
 
+    await log.createLog(userData.id, "USER CHANGE PASSWORD WITH CODE");
+
     const result = await test.removeResetPasswordToken(user_email);
     res.json(successResponse("Change password success"));
   } catch (error) {
@@ -258,6 +239,7 @@ export const changeProfile = async (req: any, res: Response) => {
 
     const result = await test.updateProfile(userData);
     if (result) {
+      await log.createLog(userData.id, "USER UPDATE PROFILE");
       res.json(successResponse("Change profile success"));
     }
   } catch (error) {
