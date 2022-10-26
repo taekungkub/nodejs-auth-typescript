@@ -40,12 +40,12 @@ export const getProduct = (id: string) => {
   });
 };
 
-export const createProduct = (item: ProductTy) => {
+export const createProduct = (item: ProductTy, image?: string | null) => {
   return new Promise(async (resolve, reject) => {
     try {
       const [rows] = await conn.query(
-        "INSERT INTO tb_product ( userId , title, metaTitle, price , discount , quantity , createdAt) VALUES (?,?,?,?,?,?,NOW())",
-        [item.userId, item.title, item.metaTitle, item.price, item.discount, item.quantity]
+        "INSERT INTO tb_product ( userId , title, metaTitle, price , discount , quantity ,category_id, image ,createdAt) VALUES (?,?,?,?,?,?,?,?,NOW())",
+        [item.userId, item.title, item.metaTitle, item.price, item.discount, item.quantity, item.category_id, image]
       );
       resolve(rows);
     } catch (error) {
@@ -54,10 +54,10 @@ export const createProduct = (item: ProductTy) => {
   });
 };
 
-export const updateProduct = (item: ProductTy, id: String) => {
+export const updateProduct = (item: ProductTy, imageName?: string | null, id?: string) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const [rows] = await conn.query("UPDATE tb_product SET ? WHERE id = ?", [item, id]);
+      const [rows] = await conn.query("UPDATE tb_product SET ? , image =? WHERE id = ?", [item, imageName, id]);
       if (rows) {
         resolve(rows);
       }

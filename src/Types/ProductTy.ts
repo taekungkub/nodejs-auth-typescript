@@ -9,6 +9,7 @@ export type ProductTy = {
   discount: number;
   quantity: number;
   category_id: number;
+  image: string;
 };
 
 export const ProductSchemaBody = Joi.object<ProductTy>({
@@ -18,5 +19,6 @@ export const ProductSchemaBody = Joi.object<ProductTy>({
   price: Joi.number().required(),
   discount: Joi.number().required(),
   quantity: Joi.number().required(),
+  image: Joi.string(),
   category_id: Joi.number().required(),
 });
