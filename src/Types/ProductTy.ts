@@ -13,12 +13,13 @@ export type ProductTy = {
 };
 
 export const ProductSchemaBody = Joi.object<ProductTy>({
+  id: Joi.allow(),
   userId: Joi.string().required(),
   title: Joi.string().required(),
   metaTitle: Joi.string(),
   price: Joi.number().required(),
   discount: Joi.number().required(),
   quantity: Joi.number().required(),
-  image: Joi.string(),
+  image: Joi.allow(),
   category_id: Joi.number().required(),
 });

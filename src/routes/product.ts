@@ -59,7 +59,6 @@ router.get("/:id", async (req: Request, res: Response) => {
 router.post("/", upload.single("image"), async (req: Request, res: Response) => {
   try {
     const productData: ProductTy = req.body;
-    const imageFile: FileTy = (req as MulterRequest).file;
     const { error }: any = ProductSchemaBody.validate(req.body);
     if (error) {
       return res.json(
@@ -69,6 +68,8 @@ router.post("/", upload.single("image"), async (req: Request, res: Response) => 
         })
       );
     }
+
+    const imageFile: FileTy = (req as MulterRequest).file;
     const result: any = await test.createProduct(productData, imageFile ? imageFile.filename : null);
     if (!result) {
       return res.send(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, "Product not found"));

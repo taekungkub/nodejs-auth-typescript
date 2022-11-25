@@ -205,6 +205,17 @@ const getUserById = (id: string) => {
   });
 };
 
+export const getUserLog = async (userId: string) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const [rows] = await conn.query("SELECT * FROM  tb_user_activity_log WHERE user_id = ?", [userId]);
+      resolve(rows);
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
 export default {
   createUser,
   getUsers,
@@ -219,4 +230,5 @@ export default {
   addRoleUser,
   updateRoleUser,
   updateUser,
+  getUserLog,
 };

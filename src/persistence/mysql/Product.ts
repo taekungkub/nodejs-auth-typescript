@@ -8,10 +8,8 @@ export const getProducts = () => {
       // const [rows] = await conn.query("SELECT * FROM tb_product");
       const [rows] = await conn.query(`
       SELECT *
-      FROM tb_product_category
-      INNER JOIN tb_product
-      ON tb_product.id = tb_product_category.product_id;
-      `);
+      FROM tb_product
+    `);
 
       if (rows) {
         resolve(rows);
@@ -27,7 +25,6 @@ export const getProduct = (id: string) => {
     try {
       const [rows] = await conn.query(
         `SELECT * FROM tb_product 
-        INNER JOIN tb_user ON tb_product.userId=tb_user.id 
         WHERE tb_product.id = ?`,
         [id]
       );

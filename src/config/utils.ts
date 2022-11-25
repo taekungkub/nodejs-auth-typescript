@@ -38,7 +38,7 @@ export function signToken(payload: any) {
     delete payload.user_password;
     delete payload.verify_token;
     delete payload.reset_password_token;
-    const token = jwt.sign(payload, secretJWT, { expiresIn: "1h" });
+    const token = jwt.sign(payload, secretJWT, { expiresIn: "5h" });
     return token;
   } catch (error) {
     console.log(error);

@@ -245,3 +245,16 @@ export const changeProfile = async (req: any, res: Response) => {
     return res.json(errorResponse(404, ERRORS.TYPE.SERVER_ERROR, error));
   }
 };
+
+export const userLog = async (req: any, res: Response) => {
+  try {
+    const token = getTokenBearer(req);
+    const { id }: any = await decodedJWT(token);
+    const result = await test.getUserLog(id);
+    if (result) {
+      res.json(successResponse(result));
+    }
+  } catch (error) {
+    return res.json(errorResponse(404, ERRORS.TYPE.SERVER_ERROR, error));
+  }
+};
