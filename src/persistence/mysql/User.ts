@@ -3,7 +3,7 @@ import { MysqlServices } from "../../config/mysqlService";
 import { UserTy } from "../../Types/UserTy";
 const { v4: uuidv4 } = require("uuid");
 
-const createUser = async (user: UserTy) => {
+export const createUser = async (user: UserTy) => {
   try {
     const [rows] = await MysqlServices.pool.query(
       "INSERT INTO tb_user ( user_email, user_password, user_displayname , user_tel  , user_created) VALUES (?,?,?,?,NOW())",
@@ -15,7 +15,7 @@ const createUser = async (user: UserTy) => {
   }
 };
 
-const getUserByEmail = async (email: string) => {
+export const getUserByEmail = async (email: string) => {
   try {
     // const [rows] = await conn.query("SELECT * FROM tb_user WHERE user_email = ?", [email]);
     const [rows] = (await MysqlServices.pool.execute(
@@ -41,7 +41,7 @@ const getUserByEmail = async (email: string) => {
   }
 };
 
-const getUsers = async () => {
+export const getUsers = async () => {
   try {
     const rows = await MysqlServices.pool.query(`
       SELECT * FROM tb_user 
@@ -58,7 +58,7 @@ const getUsers = async () => {
   }
 };
 
-const updatePassword = async (password: string, id: string) => {
+export const updatePassword = async (password: string, id: string) => {
   try {
     const [rows] = await MysqlServices.pool.query("UPDATE tb_user SET user_password=? WHERE id = ?", [password, id]);
     if (rows) {
@@ -69,7 +69,7 @@ const updatePassword = async (password: string, id: string) => {
   }
 };
 
-const updateResetPasswordToken = async (passwordToken: string, email: string) => {
+export const updateResetPasswordToken = async (passwordToken: string, email: string) => {
   try {
     const [rows] = await MysqlServices.pool.query("UPDATE tb_user SET reset_password_token=? WHERE user_email = ?", [passwordToken, email]);
     return Promise.resolve(rows);
@@ -78,7 +78,7 @@ const updateResetPasswordToken = async (passwordToken: string, email: string) =>
   }
 };
 
-const removeResetPasswordToken = async (email: string) => {
+export const removeResetPasswordToken = async (email: string) => {
   try {
     const [rows] = await MysqlServices.pool.query("UPDATE tb_user SET reset_password_token=? WHERE user_email = ?", ["", email]);
     if (rows) {
@@ -89,7 +89,7 @@ const removeResetPasswordToken = async (email: string) => {
   }
 };
 
-const updateStatusVerify = async (status: boolean, email: string) => {
+export const updateStatusVerify = async (status: boolean, email: string) => {
   try {
     const [rows] = await MysqlServices.pool.query("UPDATE tb_user SET is_verify=? WHERE user_email = ?", [status, email]);
     if (rows) {
@@ -100,7 +100,7 @@ const updateStatusVerify = async (status: boolean, email: string) => {
   }
 };
 
-const updateProfile = async (id: string, userData: UserTy) => {
+export const updateProfile = async (id: string, userData: UserTy) => {
   try {
     const [rows] = await MysqlServices.pool.query("UPDATE tb_user SET ? WHERE id = ?", [userData, id]);
     if (rows) {
@@ -111,7 +111,7 @@ const updateProfile = async (id: string, userData: UserTy) => {
   }
 };
 
-const updateUser = async (userData: UserTy, id: string) => {
+export const updateUser = async (userData: UserTy, id: string) => {
   try {
     const rows = (await MysqlServices.pool.execute("UPDATE tb_user SET user_displayname = ?, user_tel = ?, is_verify = ? WHERE id = ?", [
       userData.user_displayname,
@@ -125,7 +125,7 @@ const updateUser = async (userData: UserTy, id: string) => {
     return Promise.reject(error);
   }
 };
-const removeUser = async (id: String) => {
+export const removeUser = async (id: String) => {
   try {
     const [rows] = (await MysqlServices.pool.query("DELETE FROM tb_user  WHERE id = ?", [id])) as Array<any>;
     console.log(rows);
@@ -137,7 +137,7 @@ const removeUser = async (id: String) => {
   }
 };
 
-const addRoleUser = (roleId: String, userId: string) => {
+export const addRoleUser = (roleId: String, userId: string) => {
   return new Promise(async (resolve, reject) => {
     try {
       const [rows] = await conn.query("INSERT INTO tb_role_user ( role_id, user_id) VALUES (?,?)", [roleId, userId]);
@@ -150,7 +150,7 @@ const addRoleUser = (roleId: String, userId: string) => {
   });
 };
 
-const updateRoleUser = (roleId: String, userId: string) => {
+export const updateRoleUser = (roleId: String, userId: string) => {
   return new Promise(async (resolve, reject) => {
     try {
       const [rows] = await conn.query("UPDATE tb_role_user SET role_id=?  WHERE user_id = ?", [roleId, userId]);
@@ -163,7 +163,7 @@ const updateRoleUser = (roleId: String, userId: string) => {
   });
 };
 
-const getUserById = async (id: string) => {
+export const getUserById = async (id: string) => {
   try {
     const [rows] = (await MysqlServices.pool.query(
       `
@@ -195,21 +195,4 @@ export const getUserLog = async (id: string) => {
   } catch (error) {
     return Promise.reject(error);
   }
-};
-
-export default {
-  createUser,
-  getUsers,
-  getUserByEmail,
-  getUserById,
-  updatePassword,
-  updateResetPasswordToken,
-  removeResetPasswordToken,
-  updateStatusVerify,
-  updateProfile,
-  removeUser,
-  addRoleUser,
-  updateRoleUser,
-  updateUser,
-  getUserLog,
 };

@@ -3,7 +3,7 @@ import { ChangepasswordSchemaBody, LoginSchemaBody, RegisterSchemaBody, UserTy }
 import { errorResponse, successResponse, getTokenBearer, signToken, hashPassword, comparePassword, decodedJWT } from "../helper/utils";
 import { ERRORS } from "../helper/Errors";
 let validator = require("validator");
-import test from "../persistence/mysql/User";
+import * as test from "../persistence/mysql/User";
 import onSendVerifyToEmail from "../helper/sendMail";
 import * as log from "../persistence/mysql/Log";
 
