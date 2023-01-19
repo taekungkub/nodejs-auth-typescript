@@ -18,7 +18,7 @@ const createUser = async (user: UserTy) => {
 const getUserByEmail = async (email: string) => {
   try {
     // const [rows] = await conn.query("SELECT * FROM tb_user WHERE user_email = ?", [email]);
-    const [rows] = (await MysqlServices.pool.query(
+    const [rows] = (await MysqlServices.pool.execute(
       `
       SELECT *
       FROM tb_user
@@ -72,9 +72,7 @@ const updatePassword = async (password: string, id: string) => {
 const updateResetPasswordToken = async (passwordToken: string, email: string) => {
   try {
     const [rows] = await MysqlServices.pool.query("UPDATE tb_user SET reset_password_token=? WHERE user_email = ?", [passwordToken, email]);
-    if (rows) {
-      return Promise.resolve(rows);
-    }
+    return Promise.resolve(rows);
   } catch (error) {
     return Promise.reject(error);
   }
@@ -82,7 +80,7 @@ const updateResetPasswordToken = async (passwordToken: string, email: string) =>
 
 const removeResetPasswordToken = async (email: string) => {
   try {
-    const [rows] = await conn.query("UPDATE tb_user SET reset_password_token=? WHERE user_email = ?", ["", email]);
+    const [rows] = await MysqlServices.pool.query("UPDATE tb_user SET reset_password_token=? WHERE user_email = ?", ["", email]);
     if (rows) {
       return Promise.resolve(rows);
     }
@@ -102,9 +100,9 @@ const updateStatusVerify = async (status: boolean, email: string) => {
   }
 };
 
-const updateProfile = async (userData: UserTy) => {
+const updateProfile = async (id: string, userData: UserTy) => {
   try {
-    const [rows] = await conn.query("UPDATE tb_user SET ? WHERE id = ?", [userData, userData.id]);
+    const [rows] = await MysqlServices.pool.query("UPDATE tb_user SET ? WHERE id = ?", [userData, id]);
     if (rows) {
       return Promise.resolve(rows);
     }

@@ -1,23 +1,23 @@
 import { conn } from "../../config/dbConnect";
+import { MysqlServices } from "../../config/mysqlService";
 
-export const createLog = async (userId: string, logDesc: string) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const [rows] = await conn.query("INSERT INTO tb_user_activity_log ( user_id , log_description) VALUES (?,?)", [userId, logDesc]);
-      resolve(rows);
-    } catch (error) {
-      reject(error);
-    }
-  });
+export const createLog = async (id: string, logDesc: string) => {
+  try {
+    const [rows] = await MysqlServices.pool.query("INSERT INTO tb_user_activity_log ( user_id , log_description) VALUES (?,?)", [
+      id,
+      logDesc,
+    ]);
+    return Promise.resolve(rows);
+  } catch (error) {
+    return Promise.reject(error);
+  }
 };
 
-export const getLog = async (userId: string) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const [rows] = await conn.query("SELECT * FROM  tb_user_activity_log WHERE user_id = ?", [userId]);
-      resolve(rows);
-    } catch (error) {
-      reject(error);
-    }
-  });
+export const getLog = async (id: string) => {
+  try {
+    const [rows] = await MysqlServices.pool.query("SELECT * FROM  tb_user_activity_log WHERE user_id = ?", [id]);
+    return Promise.resolve(rows);
+  } catch (error) {
+    return Promise.reject(error);
+  }
 };

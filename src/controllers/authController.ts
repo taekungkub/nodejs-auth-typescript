@@ -35,7 +35,6 @@ export const login = async (req: Request, res: Response) => {
 
     res.send(successResponse({ token }));
   } catch (error) {
-    console.log(error);
     return res.json(errorResponse(404, ERRORS.TYPE.SERVER_ERROR, error));
   }
 };
@@ -48,12 +47,12 @@ export const register = async (req: Request, res: Response) => {
     if (error) {
       return res.json(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, error.message));
     }
-    const passwordHash = await hashPassword(user_password);
-
     let userList = (await test.getUsers()) as Array<any>;
 
-    const existEmail = userList.find((v: any) => v.user_email === user_email);
+    const existEmail = userList.find((v: UserTy) => v.user_email === user_email);
     if (existEmail) return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.EMAIL_ALREADY_EXISTS));
+
+    const passwordHash = await hashPassword(user_password);
     const tokenForVerify = signToken({ user_email });
     const result = await test.createUser({ ...req.body, user_password_hash: passwordHash });
     const result2 = await test.updateStatusVerify(false, user_email);
@@ -106,37 +105,42 @@ export const activeUser = async (req: Request, res: Response) => {
 };
 
 export const resendVerify = async (req: Request, res: Response) => {
-  const { user_email }: UserTy = req.body;
-  if (!user_email) {
-    return res.json(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, ERRORS.INCORRECT_EMAIL_OR_PASSWORD));
-  }
+  try {
+    const { user_email }: UserTy = req.body;
+    if (!user_email) {
+      return res.json(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, ERRORS.INCORRECT_EMAIL_OR_PASSWORD));
+    }
 
-  if (!validator.isEmail(user_email)) {
-    return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.EMAIL_INVALID));
-  }
-  const userData: UserTy = await test.getUserByEmail(user_email);
+    if (!validator.isEmail(user_email)) {
+      return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.EMAIL_INVALID));
+    }
+    const userData: UserTy = await test.getUserByEmail(user_email);
 
-  if (!userData) {
-    return res.json(
-      errorResponse(404, ERRORS.TYPE.BAD_REQUEST, "We were unable to find a user with that email. Make sure your Email is correct!")
+    if (!userData) {
+      return res.json(
+        errorResponse(404, ERRORS.TYPE.BAD_REQUEST, "We were unable to find a user with that email. Make sure your Email is correct!")
+      );
+    }
+
+    if (userData.is_verify) {
+      return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, "This email has been verify."));
+    }
+
+    await log.createLog(userData.id, "USER IS RESEND VERIFY");
+
+    const tokenForVerify = signToken({ user_email });
+
+    onSendVerifyToEmail(user_email, tokenForVerify);
+
+    res.json(
+      successResponse({
+        description: "Register success. Please check your email for verify.",
+        token: tokenForVerify,
+      })
     );
-  } else if (userData.is_verify) {
-    return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, "This email has been verify."));
+  } catch (error) {
+    return res.json(errorResponse(404, ERRORS.TYPE.SERVER_ERROR, error));
   }
-
-  await log.createLog(userData.id, "USER IS RESEND VERIFY");
-
-  //send email with token
-  const tokenForVerify = signToken({ user_email });
-
-  onSendVerifyToEmail(user_email, tokenForVerify);
-
-  res.json(
-    successResponse({
-      description: "Register success. Please check your email for verify.",
-      token: tokenForVerify,
-    })
-  );
 };
 
 export const userProfile = async (req: Request, res: Response) => {
@@ -177,15 +181,17 @@ export const changePassword = async (req: Request, res: Response) => {
 
 export const resetPassword = async (req: Request, res: Response) => {
   try {
-    const { id, user_email }: UserTy = req.body;
+    const { user_email }: UserTy = req.body;
 
     if (!user_email) {
       return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.INCORRECT_EMAIL));
     }
+    const user: UserTy = await test.getUserByEmail(user_email);
     const tokenForReset = signToken({ user_email });
-    const result = await test.updateResetPasswordToken(tokenForReset, user_email);
-    await log.createLog(id, "USER REQUEST RESET PASSWORD");
 
+    await test.updateResetPasswordToken(tokenForReset, user.user_email);
+
+    await log.createLog(user.id, "USER REQUEST RESET PASSWORD");
     res.json(
       successResponse({
         desciption: "We're send link for reset password. Plesase check your email",
@@ -208,21 +214,20 @@ export const changePasswordWithCode = async (req: Request, res: Response) => {
 
     const { user_email }: UserTy = (await decodedJWT(code)) as UserTy;
 
-    const { error }: any = ChangepasswordSchemaBody.validate(req.body);
+    const { error }: any = ChangepasswordSchemaBody.validate({ user_password, user_confirm_password });
 
     if (error) {
       return res.json(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, error.message));
     }
 
-    let userData = await test.getUserByEmail(user_email);
+    let userData: UserTy = await test.getUserByEmail(user_email);
 
     if (!userData.reset_password_token) {
       return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.LINK_HAS_BEEN_DESTROYED));
     }
 
     await log.createLog(userData.id, "USER CHANGE PASSWORD WITH CODE");
-
-    const result = await test.removeResetPasswordToken(user_email);
+    await test.removeResetPasswordToken(user_email);
     res.json(successResponse("Change password success"));
   } catch (error) {
     return res.json(errorResponse(404, ERRORS.TYPE.SERVER_ERROR, error));
@@ -234,13 +239,9 @@ export const changeProfile = async (req: any, res: Response) => {
     const userData: UserTy = req.body;
     const token = getTokenBearer(req);
     const { id }: any = await decodedJWT(token);
-    userData.id = id;
-
-    const result = await test.updateProfile(userData);
-    if (result) {
-      await log.createLog(userData.id, "USER UPDATE PROFILE");
-      res.json(successResponse("Change profile success"));
-    }
+    await test.updateProfile(id, userData);
+    await log.createLog(id, "USER UPDATE PROFILE");
+    res.json(successResponse("Change profile success"));
   } catch (error) {
     return res.json(errorResponse(404, ERRORS.TYPE.SERVER_ERROR, error));
   }

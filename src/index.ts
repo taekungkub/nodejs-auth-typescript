@@ -4,7 +4,7 @@ import * as db from "./config/dbConnect";
 import { MysqlServices } from "./config/mysqlService";
 import mysql from "mysql2/promise";
 import dbConfig from "./config/dbConfig";
-var bodyParser = require("body-parser");
+import bodyParser from "body-parser";
 var cors = require("cors");
 
 const app: Express = express();
@@ -32,6 +32,15 @@ MysqlServices.pool = mysql.createPool({
   port: dbConfig.port,
   timezone: dbConfig.timezone,
 });
+
+MysqlServices.pool
+  .getConnection()
+  .then(() => {
+    console.log("Connection to the DB successful");
+  })
+  .catch((err) => {
+    console.error("Error connecting to DB: ", err);
+  });
 
 //------------ Routes -------------------//
 app.use("/", require("./routes/index"));
