@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { RegisterSchemaBody, UserTy } from "../Types/UserTy";
-import { errorResponse, successResponse, getTokenBearer, signToken, hashPassword, comparePassword, decodedJWT } from "../config/utils";
-import { ERRORS } from "../config/Errors";
+import { errorResponse, successResponse, getTokenBearer, signToken, hashPassword, comparePassword, decodedJWT } from "../helper/utils";
+import { ERRORS } from "../helper/Errors";
 import test from "../persistence/mysql/User";
 
 export const createUser = async (req: Request, res: Response) => {

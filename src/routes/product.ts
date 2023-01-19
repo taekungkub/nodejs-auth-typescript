@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { Request, Response } from "express";
-import { ERRORS } from "../config/Errors";
-import { successResponse, errorResponse } from "../config/utils";
+import { ERRORS } from "../helper/Errors";
+import { successResponse, errorResponse } from "../helper/utils";
 import * as test from "../persistence/mysql/Product";
 import { ProductSchemaBody, ProductTy } from "../Types/ProductTy";
 import * as fs from "fs";

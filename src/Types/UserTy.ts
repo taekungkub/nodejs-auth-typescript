@@ -1,5 +1,5 @@
 import * as Joi from "joi";
-import { ERRORS } from "../config/Errors";
+import { ERRORS } from "../helper/Errors";
 
 const patternPassword = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,}$");
 export type UserTy = {

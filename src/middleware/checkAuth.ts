@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import { ERRORS } from "../config/Errors";
-import { getTokenBearer, secretJWT, errorResponse } from "../config/utils";
+import { ERRORS } from "../helper/Errors";
+import { getTokenBearer, secretJWT, errorResponse } from "../helper/utils";
 var jwt = require("jsonwebtoken");
 
 export default function checkAuth(req: Request, res: Response, next: NextFunction) {
