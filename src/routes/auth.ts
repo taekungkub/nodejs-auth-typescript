@@ -15,4 +15,4 @@ router.post("/resend/verify", authController.resendVerify);
 router.put("/changeprofile", checkAuth, authController.changeProfile);
 router.get("/profile/log", checkAuth, authController.userLog);
 
-module.exports = router;
+export default router;

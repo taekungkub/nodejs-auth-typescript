@@ -25,15 +25,18 @@ export const getProduct = async (id: string) => {
         WHERE tb_product.id = ?`,
       [id]
     )) as Array<any>;
-    if (rows) {
-      return Promise.resolve(rows[0]);
+
+    if (rows.length === 0) {
+      return Promise.reject("Product not found");
     }
+
+    return Promise.resolve(rows[0]);
   } catch (error) {
     return Promise.reject(error);
   }
 };
 
-export const createProduct = async (item: ProductTy, image?: string | null) => {
+export const createProduct = async (item: ProductTy, image?: string) => {
   try {
     const [rows] = await MysqlServices.pool.query(
       "INSERT INTO tb_product ( userId , title, metaTitle, price , discount , quantity ,category_id, image ,createdAt) VALUES (?,?,?,?,?,?,?,?,NOW())",
@@ -58,7 +61,7 @@ export const updateProduct = async (item: ProductTy, imageName?: string | null, 
 
 export const removeProduct = async (id: String) => {
   try {
-    const [rows] = await conn.query("DELETE FROM tb_product  WHERE id = ?", [id]);
+    const [rows] = await MysqlServices.pool.query("DELETE FROM tb_product  WHERE id = ?", [id]);
     if (rows) {
       return Promise.resolve(rows);
     }
@@ -69,7 +72,7 @@ export const removeProduct = async (id: String) => {
 
 export const addProductCatagory = async (productId: number, productData: ProductTy) => {
   try {
-    const [rows] = await conn.query("INSERT INTO tb_product_category (product_id , category_id) VALUES (?,?)", [
+    const [rows] = await MysqlServices.pool.query("INSERT INTO tb_product_category (product_id , category_id) VALUES (?,?)", [
       productId,
       productData.category_id,
     ]);

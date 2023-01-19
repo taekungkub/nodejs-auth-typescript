@@ -8,4 +8,4 @@ router.get("/", (req, res) => {
   res.json(errorResponse(405, ERRORS.TYPE.NOT_ALLOWED, ERRORS.METHOD_NOT_ALLOW));
 });
 
-module.exports = router;
+export default router;

@@ -113,7 +113,7 @@ export const updateProfile = async (id: string, userData: UserTy) => {
 
 export const updateUser = async (userData: UserTy, id: string) => {
   try {
-    const rows = (await MysqlServices.pool.execute("UPDATE tb_user SET user_displayname = ?, user_tel = ?, is_verify = ? WHERE id = ?", [
+    const rows = (await MysqlServices.pool.query("UPDATE tb_user SET user_displayname = ?, user_tel = ?, is_verify = ? WHERE id = ?", [
       userData.user_displayname,
       userData.user_tel,
       userData.is_verify,
@@ -128,7 +128,6 @@ export const updateUser = async (userData: UserTy, id: string) => {
 export const removeUser = async (id: String) => {
   try {
     const [rows] = (await MysqlServices.pool.query("DELETE FROM tb_user  WHERE id = ?", [id])) as Array<any>;
-    console.log(rows);
     if (rows) {
       return Promise.resolve(rows);
     }
@@ -137,30 +136,26 @@ export const removeUser = async (id: String) => {
   }
 };
 
-export const addRoleUser = (roleId: String, userId: string) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const [rows] = await conn.query("INSERT INTO tb_role_user ( role_id, user_id) VALUES (?,?)", [roleId, userId]);
-      if (rows) {
-        resolve(rows);
-      }
-    } catch (error) {
-      reject(error);
+export const addRoleUser = async (roleId: String, userId: string) => {
+  try {
+    const [rows] = await MysqlServices.pool.query("INSERT INTO tb_role_user ( role_id, user_id) VALUES (?,?)", [roleId, userId]);
+    if (rows) {
+      return Promise.resolve(rows);
     }
-  });
+  } catch (error) {
+    return Promise.reject(error);
+  }
 };
 
-export const updateRoleUser = (roleId: String, userId: string) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const [rows] = await conn.query("UPDATE tb_role_user SET role_id=?  WHERE user_id = ?", [roleId, userId]);
-      if (rows) {
-        resolve(rows);
-      }
-    } catch (error) {
-      reject(error);
+export const updateRoleUser = async (roleId: String, userId: string) => {
+  try {
+    const [rows] = await MysqlServices.pool.query("UPDATE tb_role_user SET role_id=?  WHERE user_id = ?", [roleId, userId]);
+    if (rows) {
+      return Promise.resolve(rows);
     }
-  });
+  } catch (error) {
+    return Promise.reject(error);
+  }
 };
 
 export const getUserById = async (id: string) => {
@@ -190,7 +185,7 @@ export const getUserById = async (id: string) => {
 
 export const getUserLog = async (id: string) => {
   try {
-    const [rows] = await conn.query("SELECT * FROM  tb_user_activity_log WHERE user_id = ?", [id]);
+    const [rows] = await MysqlServices.pool.query("SELECT * FROM  tb_user_activity_log WHERE user_id = ?", [id]);
     return Promise.resolve(rows);
   } catch (error) {
     return Promise.reject(error);

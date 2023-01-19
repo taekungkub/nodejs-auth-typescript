@@ -1,28 +1,25 @@
 import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
-import * as db from "./config/dbConnect";
 import { MysqlServices } from "./config/mysqlService";
 import mysql from "mysql2/promise";
 import dbConfig from "./config/dbConfig";
 import bodyParser from "body-parser";
 var cors = require("cors");
 
-const app: Express = express();
+//------------ Routes -------------------//
+import indexRoutes from "./routes/index";
+import authRoutes from "./routes/auth";
+import productRoutes from "./routes/product";
+import userRoutes from "./routes/user";
 
 //------------ Config -------------------//
+const app: Express = express();
 dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cors());
 
 //------------ DB Connection ------------//
-// db.init()
-//   .then(() => {
-//     console.log("DB is Connected");
-//   })
-//   .catch((error) => {
-//     console.log(error);
-//   });
 
 MysqlServices.pool = mysql.createPool({
   host: dbConfig.host,
@@ -43,10 +40,10 @@ MysqlServices.pool
   });
 
 //------------ Routes -------------------//
-app.use("/", require("./routes/index"));
-app.use("/auth", require("./routes/auth"));
-app.use("/products", require("./routes/product"));
-app.use("/users", require("./routes/user"));
+app.use("/", indexRoutes);
+app.use("/auth", authRoutes);
+app.use("/products", productRoutes);
+app.use("/users", userRoutes);
 
 //------------ Port ---------------------//
 const port = process.env.PORT || 8000;

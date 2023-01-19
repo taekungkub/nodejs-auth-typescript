@@ -64,23 +64,17 @@ export const updateUser = async (req: Request, res: Response) => {
     const userData: UserTy = req.body;
     const { id } = req.params;
     const { role_id } = req.body;
-    await test.getUserById(id);
+    const user: UserTy = await test.getUserById(id);
 
     const result = await test.updateUser(userData, id);
 
-    if (!result) {
-      return res.send(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, "User not found"));
-    }
-
     if (role_id) {
-      const userData: UserTy = await test.getUserById(id);
-      if (!userData.role_id) {
-        const result2 = await test.addRoleUser(role_id, id);
+      if (!user.role_id) {
+        await test.addRoleUser(role_id, id);
       } else {
-        const result2 = await test.updateRoleUser(role_id, id);
+        await test.updateRoleUser(role_id, id);
       }
     }
-
     res.send(successResponse(result));
   } catch (error) {
     return res.json(errorResponse(404, ERRORS.TYPE.SERVER_ERROR, error));
