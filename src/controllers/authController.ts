@@ -50,7 +50,7 @@ export const register = async (req: Request, res: Response) => {
     }
     const passwordHash = await hashPassword(user_password);
 
-    let userList: Array<string | number> = (await test.getUsers()) as Array<string | number>;
+    let userList = (await test.getUsers()) as Array<any>;
 
     const existEmail = userList.find((v: any) => v.user_email === user_email);
     if (existEmail) return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.EMAIL_ALREADY_EXISTS));
@@ -114,7 +114,7 @@ export const resendVerify = async (req: Request, res: Response) => {
   if (!validator.isEmail(user_email)) {
     return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.EMAIL_INVALID));
   }
-  const userData: UserTy = (await test.getUserByEmail(user_email)) as UserTy;
+  const userData: UserTy = await test.getUserByEmail(user_email);
 
   if (!userData) {
     return res.json(
@@ -214,7 +214,7 @@ export const changePasswordWithCode = async (req: Request, res: Response) => {
       return res.json(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, error.message));
     }
 
-    let userData: UserTy = (await test.getUserByEmail(user_email)) as UserTy;
+    let userData = await test.getUserByEmail(user_email);
 
     if (!userData.reset_password_token) {
       return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.LINK_HAS_BEEN_DESTROYED));

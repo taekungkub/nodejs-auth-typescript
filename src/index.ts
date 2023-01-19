@@ -1,7 +1,10 @@
 import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
-var bodyParser = require("body-parser");
 import * as db from "./config/dbConnect";
+import { MysqlServices } from "./config/mysqlService";
+import mysql from "mysql2/promise";
+import dbConfig from "./config/dbConfig";
+var bodyParser = require("body-parser");
 var cors = require("cors");
 
 const app: Express = express();
@@ -13,13 +16,22 @@ app.use(bodyParser.json());
 app.use(cors());
 
 //------------ DB Connection ------------//
-db.init()
-  .then(() => {
-    console.log("DB is Connected");
-  })
-  .catch((error) => {
-    console.log(error);
-  });
+// db.init()
+//   .then(() => {
+//     console.log("DB is Connected");
+//   })
+//   .catch((error) => {
+//     console.log(error);
+//   });
+
+MysqlServices.pool = mysql.createPool({
+  host: dbConfig.host,
+  user: dbConfig.user,
+  database: dbConfig.database,
+  password: dbConfig.password,
+  port: dbConfig.port,
+  timezone: dbConfig.timezone,
+});
 
 //------------ Routes -------------------//
 app.use("/", require("./routes/index"));

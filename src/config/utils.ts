@@ -4,7 +4,7 @@ export const secretJWT = process.env.SECRET_JWT || "foobarsuper";
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
 
-export function errorResponse(statusCode: Number = 404, type: string, desc: any) {
+export function errorResponse(statusCode: Number = 404, type: string, desc?: any) {
   return {
     statusCode: statusCode,
     detail: "Error",
