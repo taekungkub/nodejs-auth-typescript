@@ -2,7 +2,8 @@ import * as Joi from "joi";
 import { ERRORS } from "../helper/Errors";
 
 const patternPassword = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,}$");
-export type UserTy = {
+
+export interface UserTy {
   id: string;
   user_email: string;
   user_password: string;
@@ -13,7 +14,7 @@ export type UserTy = {
   reset_password_token: string;
   is_verify: boolean;
   role_id: string;
-};
+}
 
 export const LoginSchemaBody = Joi.object<UserTy>({
   user_email: Joi.string().email().required(),

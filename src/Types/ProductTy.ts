@@ -1,6 +1,6 @@
 import * as Joi from "joi";
 
-export type ProductTy = {
+export interface ProductTy {
   id?: number;
   userId: string;
   title: string;
@@ -10,7 +10,7 @@ export type ProductTy = {
   quantity: number;
   category_id: number;
   image: string;
-};
+}
 
 export const ProductSchemaBody = Joi.object<ProductTy>({
   id: Joi.allow(),
