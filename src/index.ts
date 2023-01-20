@@ -4,7 +4,7 @@ import { MysqlServices } from "./config/mysqlService";
 import mysql from "mysql2/promise";
 import dbConfig from "./config/dbConfig";
 import bodyParser from "body-parser";
-var cors = require("cors");
+import cors from "cors";
 import swaggerUi from "swagger-ui-express";
 import swaggerDocument from "../api-document.json";
 
