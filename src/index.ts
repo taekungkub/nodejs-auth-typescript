@@ -5,12 +5,15 @@ import mysql from "mysql2/promise";
 import dbConfig from "./config/dbConfig";
 import bodyParser from "body-parser";
 var cors = require("cors");
+import swaggerUi from "swagger-ui-express";
+import specs from "./swagger";
 
 //------------ Routes -------------------//
 import indexRoutes from "./routes/index";
 import authRoutes from "./routes/auth";
 import productRoutes from "./routes/product";
 import userRoutes from "./routes/user";
+import roleRoutes from "./routes/role";
 
 //------------ Config -------------------//
 const app: Express = express();
@@ -44,9 +47,12 @@ app.use("/", indexRoutes);
 app.use("/auth", authRoutes);
 app.use("/products", productRoutes);
 app.use("/users", userRoutes);
+app.use("/roles", roleRoutes);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 //------------ Port ---------------------//
 const port = process.env.PORT || 8000;
+
 app.listen(port, () => {
   console.log(`⚡️[server]: Server is running at http://localhost:${port} mode ${process.env.NODE_ENV}`);
 });

@@ -18,7 +18,7 @@ export const createUser = async (user: UserTy) => {
 export const getUserByEmail = async (email: string) => {
   try {
     // const [rows] = await conn.query("SELECT * FROM tb_user WHERE user_email = ?", [email]);
-    const [rows] = (await MysqlServices.pool.execute(
+    const [rows] = (await MysqlServices.pool.query(
       `
       SELECT *
       FROM tb_user
