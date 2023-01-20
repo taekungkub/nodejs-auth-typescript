@@ -7,6 +7,7 @@ import bodyParser from "body-parser";
 var cors = require("cors");
 import swaggerUi from "swagger-ui-express";
 import specs from "./swagger";
+import swaggerFile from "../src/test.json";
 
 //------------ Routes -------------------//
 import indexRoutes from "./routes/index";
@@ -43,12 +44,13 @@ MysqlServices.pool
   });
 
 //------------ Routes -------------------//
+
 app.use("/", indexRoutes);
 app.use("/auth", authRoutes);
 app.use("/products", productRoutes);
 app.use("/users", userRoutes);
 app.use("/roles", roleRoutes);
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerFile));
 
 //------------ Port ---------------------//
 const port = process.env.PORT || 8000;

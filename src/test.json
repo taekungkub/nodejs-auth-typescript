@@ -75,13 +75,6 @@
           "type": "string"
         }
       }
-    },
-    "userEmail": {
-      "properties": {
-        "email": {
-          "type": "string"
-        }
-      }
     }
   }
 }

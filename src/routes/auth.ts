@@ -4,6 +4,7 @@ import * as authController from "../controllers/authController";
 import checkAuth from "../middleware/checkAuth";
 
 //------------ Login Route ------------//
+
 router.get("/profile", checkAuth, authController.userProfile);
 router.post("/login", authController.login);
 router.get("/activation/:code?", authController.activeUser);
