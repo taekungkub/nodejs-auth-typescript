@@ -6,7 +6,9 @@ import dbConfig from "./config/dbConfig";
 import bodyParser from "body-parser";
 import cors from "cors";
 import swaggerUi from "swagger-ui-express";
-import swaggerDocument from "../api-document.json";
+import docs from "./api-document.json";
+import yaml from "js-yaml";
+import fs from "fs";
 
 //------------ Routes -------------------//
 import indexRoutes from "./routes/index";
@@ -49,7 +51,8 @@ app.use("/auth", authRoutes);
 app.use("/products", productRoutes);
 app.use("/users", userRoutes);
 app.use("/roles", roleRoutes);
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+const doc: any = yaml.load(fs.readFileSync("./src/api-document.yaml", "utf8"));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(docs));
 
 //------------ Port ---------------------//
 const port = process.env.PORT || 8000;
