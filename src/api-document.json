@@ -510,8 +510,7 @@
         "produces": ["application/json"],
         "responses": {
           "200": {
-            "description": null,
-            "schema": { "$ref": "#/definitions/User" }
+            "description": "Get all user success"
           },
           "400": {
             "description": "Resource not found"
@@ -551,8 +550,7 @@
         "produces": ["application/json"],
         "responses": {
           "200": {
-            "description": null,
-            "schema": { "$ref": "#/definitions/User" }
+            "description": "create  user success"
           },
           "400": {
             "description": "Resource not found"
@@ -624,8 +622,7 @@
         "produces": ["application/json"],
         "responses": {
           "200": {
-            "description": null,
-            "schema": { "$ref": "#/definitions/User" }
+            "description": "edit user success"
           },
           "400": {
             "description": "Resource not found"
@@ -652,8 +649,7 @@
         "produces": ["application/json"],
         "responses": {
           "200": {
-            "description": null,
-            "schema": { "$ref": "#/definitions/User" }
+            "description": "remove user success"
           },
           "400": {
             "description": "Resource not found"
