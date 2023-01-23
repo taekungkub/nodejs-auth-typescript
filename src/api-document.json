@@ -256,57 +256,7 @@
         "responses": {
           "200": {
             "description": null,
-            "schema": {
-              "properties": {
-                "statusCode": {
-                  "type": "number"
-                },
-                "detail": {
-                  "type": "string"
-                },
-                "data": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "number"
-                    },
-                    "user_email": {
-                      "type": "string"
-                    },
-                    "user_password": {
-                      "type": "string"
-                    },
-                    "user_displayname": {
-                      "type": "string"
-                    },
-                    "user_tel": {
-                      "type": "string"
-                    },
-                    "is_verify": {
-                      "type": "number"
-                    },
-                    "reset_password_token": {
-                      "type": "string"
-                    },
-                    "user_created": {
-                      "type": "string"
-                    },
-                    "user_updated": {
-                      "type": "string"
-                    },
-                    "role_id": {
-                      "type": "number"
-                    },
-                    "user_id": {
-                      "type": "number"
-                    },
-                    "role_title": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
+            "schema": { "$ref": "#/definitions/User" }
           },
           "400": {
             "description": "Resource not found"
@@ -553,10 +503,40 @@
   "definitions": {
     "User": {
       "properties": {
-        "email": {
+        "id": {
+          "type": "number"
+        },
+        "user_email": {
           "type": "string"
         },
-        "password": {
+        "user_password": {
+          "type": "string"
+        },
+        "user_displayname": {
+          "type": "string"
+        },
+        "user_tel": {
+          "type": "string"
+        },
+        "is_verify": {
+          "type": "number"
+        },
+        "reset_password_token": {
+          "type": "string"
+        },
+        "user_created": {
+          "type": "string"
+        },
+        "user_updated": {
+          "type": "string"
+        },
+        "role_id": {
+          "type": "number"
+        },
+        "user_id": {
+          "type": "number"
+        },
+        "role_title": {
           "type": "string"
         }
       }

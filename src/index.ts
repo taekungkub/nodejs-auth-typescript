@@ -7,9 +7,8 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import swaggerUi from "swagger-ui-express";
 import docs from "./api-document.json";
-import yaml from "js-yaml";
 import fs from "fs";
-
+import ymal from "js-yaml";
 //------------ Routes -------------------//
 import indexRoutes from "./routes/index";
 import authRoutes from "./routes/auth";
@@ -51,8 +50,9 @@ app.use("/auth", authRoutes);
 app.use("/products", productRoutes);
 app.use("/users", userRoutes);
 app.use("/roles", roleRoutes);
-const doc: any = yaml.load(fs.readFileSync("./src/api-document.yaml", "utf8"));
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(docs));
+const fileContents = fs.readFileSync("./src/api-document.yaml", "utf8");
+const doc: any = ymal.load(fileContents);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(doc));
 
 //------------ Port ---------------------//
 const port = process.env.PORT || 8000;
