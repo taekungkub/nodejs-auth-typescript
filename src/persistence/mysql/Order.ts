@@ -1,5 +1,5 @@
 import { MysqlServices } from "../../config/mysqlService";
-import { OrderTy } from "../../Types/OrderTy";
+import { OrderProductTy, OrderTy } from "../../Types/OrderTy";
 
 export const getOrders = async () => {
   try {
@@ -40,6 +40,19 @@ export const createOrder = async (item: OrderTy) => {
       item.user_id,
       item.status,
       item.payment,
+    ]) as Array<any>
+    return Promise.resolve(rows);
+  } catch (error) {
+    return Promise.reject(error);
+  }
+};
+
+export const createOrderProduct = async (item: OrderProductTy ) => {
+  try {
+    const [rows] = await MysqlServices.pool.query("INSERT INTO tb_order ( order_id , product_id ,  quantity , createdAt ) VALUES (?,?,?,NOW())", [
+      item.order_id,
+      item.product_id,
+      item.quantity,
     ]);
     return Promise.resolve(rows);
   } catch (error) {
@@ -47,7 +60,8 @@ export const createOrder = async (item: OrderTy) => {
   }
 };
 
-export const updateOrder = async (item: OrderTy, id?: string) => {
+
+export const updateOrder = async (item: OrderTy, id: string) => {
   try {
     const [rows] = await MysqlServices.pool.query("UPDATE tb_order SET ? , WHERE id = ?", [item, id]);
     if (rows) {
