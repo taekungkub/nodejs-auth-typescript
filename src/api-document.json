@@ -683,7 +683,9 @@
           "type": "string"
         },
         "is_verify": {
-          "type": "number"
+          "type": "boolean",
+          "enum": ["true", "false"],
+          "default": "false"
         },
         "reset_password_token": {
           "type": "string"

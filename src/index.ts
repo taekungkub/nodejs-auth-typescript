@@ -15,7 +15,7 @@ import authRoutes from "./routes/auth";
 import productRoutes from "./routes/product";
 import userRoutes from "./routes/user";
 import roleRoutes from "./routes/role";
-
+import orderRoutes from "./routes/order";
 //------------ Config -------------------//
 const app: Express = express();
 dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
@@ -50,6 +50,8 @@ app.use("/auth", authRoutes);
 app.use("/products", productRoutes);
 app.use("/users", userRoutes);
 app.use("/roles", roleRoutes);
+app.use("/orders", orderRoutes);
+
 // const fileContents = fs.readFileSync("./src/api-document.yaml", "utf8");
 // const doc: any = ymal.load(fileContents);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(docs));
