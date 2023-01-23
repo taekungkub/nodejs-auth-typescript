@@ -50,9 +50,9 @@ app.use("/auth", authRoutes);
 app.use("/products", productRoutes);
 app.use("/users", userRoutes);
 app.use("/roles", roleRoutes);
-const fileContents = fs.readFileSync("./src/api-document.yaml", "utf8");
-const doc: any = ymal.load(fileContents);
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(doc));
+// const fileContents = fs.readFileSync("./src/api-document.yaml", "utf8");
+// const doc: any = ymal.load(fileContents);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(docs));
 
 //------------ Port ---------------------//
 const port = process.env.PORT || 8000;

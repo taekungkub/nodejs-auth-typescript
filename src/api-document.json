@@ -498,6 +498,174 @@
           }
         }
       }
+    },
+
+    "/users": {
+      "get": {
+        "summary": null,
+        "tags": ["User"],
+        "description": "Get all User",
+
+        "parameters": [],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": null,
+            "schema": { "$ref": "#/definitions/User" }
+          },
+          "400": {
+            "description": "Resource not found"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Server Error!!"
+          }
+        }
+      },
+      "post": {
+        "summary": null,
+        "tags": ["User"],
+        "description": "Get user by id",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "create a user",
+            "schema": {
+              "properties": {
+                "user_email": {
+                  "type": "string"
+                },
+                "user_password": {
+                  "type": "string"
+                },
+                "user_confirm_password": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": null,
+            "schema": { "$ref": "#/definitions/User" }
+          },
+          "400": {
+            "description": "Resource not found"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Server Error!!"
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "summary": null,
+        "tags": ["User"],
+        "description": "Get user by id",
+
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id"
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": null,
+            "schema": { "$ref": "#/definitions/User" }
+          },
+          "400": {
+            "description": "Resource not found"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Server Error!!"
+          }
+        }
+      },
+      "put": {
+        "summary": null,
+        "tags": ["User"],
+        "description": "Get user by id",
+
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "create a user",
+            "schema": {
+              "properties": {
+                "user_displayname": {
+                  "type": "string"
+                },
+                "user_tel": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": null,
+            "schema": { "$ref": "#/definitions/User" }
+          },
+          "400": {
+            "description": "Resource not found"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Server Error!!"
+          }
+        }
+      },
+      "delete": {
+        "summary": null,
+        "tags": ["User"],
+        "description": "Get user by id",
+
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id"
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": null,
+            "schema": { "$ref": "#/definitions/User" }
+          },
+          "400": {
+            "description": "Resource not found"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Server Error!!"
+          }
+        }
+      }
     }
   },
   "definitions": {
