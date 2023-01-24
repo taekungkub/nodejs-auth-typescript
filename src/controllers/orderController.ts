@@ -9,8 +9,21 @@ import { RowTy } from "../Types/RowTy";
 import { ProductCartTy, ProductTy } from "../Types/ProductTy";
 
 export const getAllOrder = async (req: Request, res: Response) => {
-  const result = await db.getOrders();
-  res.json(successResponse(result));
+  const result = (await db.getOrders()) as Array<OrderTy>;
+
+  const promises = result.map(async (order: OrderTy) => {
+    const products = await db.getOrderProduct(order.id);
+    return Object.assign(
+      {
+        ...order,
+        products: products,
+      },
+      {}
+    );
+  });
+  const orders = await Promise.all(promises);
+
+  const result2 = res.json(successResponse(orders));
 };
 
 export const getOrderById = async (req: Request, res: Response) => {
@@ -27,6 +40,7 @@ export const getOrderById = async (req: Request, res: Response) => {
 export const getOrderByUserId = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+
     const result = (await db.getOrderUser(id)) as Array<any>;
 
     const promises = result.map(async (order: OrderTy) => {
@@ -41,11 +55,7 @@ export const getOrderByUserId = async (req: Request, res: Response) => {
     });
     const orders = await Promise.all(promises);
 
-    const result2 = res.json(
-      successResponse({
-        orders: orders,
-      })
-    );
+    const result2 = res.json(successResponse(orders));
   } catch (error) {
     console.log(error);
   }
@@ -58,7 +68,6 @@ export const createOrder = async (req: Request, res: Response) => {
     const result = (await db.createOrder(order)) as RowTy;
     const order_id = result.insertId;
     let promises = order_products.map(async (product: ProductCartTy) => {
-      console.log(product);
       await db.createOrderProduct(order_id, product.id, product.qty);
     });
     await Promise.all(promises);
@@ -71,13 +80,19 @@ export const updateOrder = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const order: OrderTy = req.body;
+
     const result = await db.updateOrder(order, id);
-  } catch (error) {}
+    res.json(successResponse(result));
+  } catch (error) {
+    console.log(error);
+  }
 };
 export const removeOrder = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const result = await db.removeOrder(id);
     res.json(successResponse(result));
-  } catch (error) {}
+  } catch (error) {
+    console.log(error);
+  }
 };

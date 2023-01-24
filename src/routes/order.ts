@@ -3,7 +3,7 @@ import * as orderController from "../controllers/orderController";
 
 const router = Router();
 
-//------------ Order Route ------------//
+//------------ orders Route ------------//
 router.get("/", orderController.getAllOrder);
 router.get("/:id", orderController.getOrderById);
 router.get("/user/:id", orderController.getOrderByUserId);

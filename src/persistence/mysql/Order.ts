@@ -4,8 +4,7 @@ import { OrderProductTy, OrderTy } from "../../Types/OrderTy";
 export const getOrders = async () => {
   try {
     const [rows] = await MysqlServices.pool.query(`
-      SELECT *
-      FROM tb_order JOIN
+      SELECT * FROM tb_order 
     `);
 
     if (rows) {
@@ -50,7 +49,7 @@ export const getOrderProduct = async (orderId: string | number) => {
     )) as Array<any>;
 
     if (rows.length === 0) {
-      return Promise.reject("Order not found");
+      return Promise.reject("Order Product not found");
     }
 
     return Promise.resolve(rows);
@@ -70,7 +69,7 @@ export const getOrderUser = async (userId: string | number) => {
     )) as Array<any>;
 
     if (rows.length === 0) {
-      return Promise.reject("Order not found");
+      return Promise.reject("Order User not found");
     }
 
     return Promise.resolve(rows);
@@ -106,7 +105,7 @@ export const createOrderProduct = async (orderId: string | number, productId: st
 
 export const updateOrder = async (item: OrderTy, id: string) => {
   try {
-    const [rows] = await MysqlServices.pool.query("UPDATE tb_order SET ? , WHERE id = ?", [item, id]);
+    const [rows] = await MysqlServices.pool.query("UPDATE tb_order SET ?  WHERE id = ?", [item, id]);
     if (rows) {
       return Promise.resolve(rows);
     }
