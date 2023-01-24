@@ -1,15 +1,13 @@
 export interface OrderTy {
-  id?: string;
+  id: string;
   user_id: string;
   status: string;
   payment: string;
 }
 
-
-
 export interface OrderProductTy {
-  id?:string,
-  order_id: string|number;
-  product_id: string|number;
-  quantity : number;
+  id: string;
+  order_id: string | number;
+  product_id: string | number;
+  quantity: number;
 }

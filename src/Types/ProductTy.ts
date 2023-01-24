@@ -1,7 +1,7 @@
 import * as Joi from "joi";
 
 export interface ProductTy {
-  id?: number;
+  id: number;
   userId: string;
   title: string;
   metaTitle?: string;
@@ -10,6 +10,19 @@ export interface ProductTy {
   quantity: number;
   category_id: number;
   image: string;
+}
+
+export interface ProductCartTy {
+  id: number;
+  userId: string;
+  title: string;
+  metaTitle?: string;
+  price: number;
+  discount: number;
+  image: string;
+  quantity: number;
+  category_id: number;
+  qty: number;
 }
 
 export const ProductSchemaBody = Joi.object<ProductTy>({

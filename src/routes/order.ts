@@ -5,8 +5,8 @@ const router = Router();
 
 //------------ Order Route ------------//
 router.get("/", orderController.getAllOrder);
-
-router.get("/:id", orderController.getOrderByID);
+router.get("/:id", orderController.getOrderById);
+router.get("/user/:id", orderController.getOrderByUserId);
 
 router.post("/", orderController.createOrder);
 
