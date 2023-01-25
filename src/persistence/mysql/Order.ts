@@ -80,11 +80,10 @@ export const getOrderUser = async (userId: string | number) => {
 
 export const createOrder = async (item: OrderTy) => {
   try {
-    const [rows] = (await MysqlServices.pool.query("INSERT INTO tb_order ( user_id , status, payment, createdAt) VALUES (?,?,?,NOW())", [
-      item.user_id,
-      item.status,
-      item.payment,
-    ])) as Array<any>;
+    const [rows] = (await MysqlServices.pool.query(
+      "INSERT INTO tb_order ( user_id , status, payment, total,createdAt) VALUES (?,?,?,?,NOW())",
+      [item.user_id, item.status, item.payment, item.total]
+    )) as Array<any>;
     return Promise.resolve(rows);
   } catch (error) {
     return Promise.reject(error);
