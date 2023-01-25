@@ -124,3 +124,14 @@ export const removeOrder = async (id: String) => {
     return Promise.reject(error);
   }
 };
+
+export const updateQuantity = async (id: string | number, quantity: number) => {
+  try {
+    const [rows] = await MysqlServices.pool.query("UPDATE tb_product SET quantity = quantity + ?  WHERE id = ?", [quantity, id]);
+    if (rows) {
+      return Promise.resolve(rows);
+    }
+  } catch (error) {
+    return Promise.reject(error);
+  }
+};

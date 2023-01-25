@@ -48,7 +48,7 @@ export const createProduct = async (item: ProductTy, image?: string) => {
   }
 };
 
-export const updateProduct = async (item: ProductTy, imageName?: string | null, id?: string) => {
+export const updateProduct = async (item: ProductTy, imageName?: string | null, id?: string | number) => {
   try {
     const [rows] = await MysqlServices.pool.query("UPDATE tb_product SET ? , image =? WHERE id = ?", [item, imageName, id]);
     if (rows) {

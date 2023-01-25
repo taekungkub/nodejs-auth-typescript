@@ -3,6 +3,7 @@ export interface OrderTy {
   user_id: string;
   status: string;
   payment: string;
+  products: Array<OrderProductTy>;
 }
 
 export interface OrderProductTy {
