@@ -1,4 +1,3 @@
-import { conn } from "../../config/dbConnect";
 import { MysqlServices } from "../../config/mysqlService";
 import { UserTy } from "../../Types/UserTy";
 const { v4: uuidv4 } = require("uuid");

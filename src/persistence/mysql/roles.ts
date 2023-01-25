@@ -1,4 +1,3 @@
-import { conn } from "../../config/dbConnect";
 import { MysqlServices } from "../../config/mysqlService";
 
 export const getRoles = async () => {
