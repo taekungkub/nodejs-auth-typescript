@@ -14,6 +14,7 @@ export interface UserTy {
   reset_password_token: string;
   is_verify: boolean;
   role_id: string;
+  role_title: string;
 }
 
 export const LoginSchemaBody = Joi.object<UserTy>({

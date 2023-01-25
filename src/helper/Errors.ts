@@ -23,4 +23,5 @@ export const ERRORS = {
   EMAIL_IS_VERIFY: "This email has been verify.",
   METHOD_NOT_ALLOW: "Method not allowed. Must be one of: OPTIONS",
   LINK_HAS_BEEN_DESTROYED: "This link has been destroyed.",
+  ROLE_NOT_ALLOW: "This role not allow to access",
 };
