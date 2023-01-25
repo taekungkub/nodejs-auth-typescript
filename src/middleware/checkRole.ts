@@ -2,17 +2,28 @@ import { NextFunction, Request, Response } from "express";
 import { ERRORS } from "../helper/Errors";
 import { errorResponse, getTokenBearer, decodedJWT } from "../helper/utils";
 import { UserTy } from "../Types/UserTy";
+import * as db from "../persistence/mysql/User";
 
 export default function checkRole(roles: Array<string>) {
   return async (req: Request, res: Response, next: NextFunction) => {
-    const token = getTokenBearer(req);
-    const decoded = (await decodedJWT(token)) as UserTy;
+    try {
+      const token = getTokenBearer(req);
 
-    if (roles.includes(decoded.role_title)) {
-      next();
-      return;
+      if (!token) {
+        return res.json(errorResponse(403, ERRORS.TYPE.SERVER_ERROR, ERRORS.TOKEN_REQUIRED));
+      }
+
+      const decoded = (await decodedJWT(token)) as UserTy;
+      const result = (await db.getUserByEmail(decoded.user_email)) as UserTy;
+
+      if (roles.includes(result.role_title)) {
+        next();
+        return;
+      }
+
+      return res.json(errorResponse(403, ERRORS.TYPE.SERVER_ERROR, ERRORS.ROLE_NOT_ALLOW));
+    } catch (error) {
+      return res.json(errorResponse(404, ERRORS.TYPE.SERVER_ERROR, error));
     }
-
-    return res.json(errorResponse(403, ERRORS.TYPE.SERVER_ERROR, ERRORS.ROLE_NOT_ALLOW));
   };
 }

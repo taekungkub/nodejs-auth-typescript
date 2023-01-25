@@ -1,7 +1,7 @@
 // main.js
 const nodemailer = require("nodemailer");
 
-const onSendVerifyToEmail = (receiver: String, token: String) => {
+const onSendVerifyToEmail = (receiver: string, token: string) => {
   // setup mail transporter service
   const transporter = nodemailer.createTransport({
     service: "gmail",

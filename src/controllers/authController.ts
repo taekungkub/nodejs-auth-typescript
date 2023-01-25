@@ -1,6 +1,17 @@
 import { Request, Response } from "express";
 import { ChangepasswordSchemaBody, LoginSchemaBody, RegisterSchemaBody, UserTy } from "../Types/UserTy";
-import { errorResponse, successResponse, getTokenBearer, signToken, hashPassword, comparePassword, decodedJWT } from "../helper/utils";
+import {
+  errorResponse,
+  successResponse,
+  getTokenBearer,
+  signToken,
+  hashPassword,
+  comparePassword,
+  decodedJWT,
+  jwtGenerate,
+  jwtRefreshTokenGenerate,
+  decodeJwtRefresh,
+} from "../helper/utils";
 import { ERRORS } from "../helper/Errors";
 let validator = require("validator");
 import * as test from "../persistence/mysql/User";
@@ -29,11 +40,17 @@ export const login = async (req: Request, res: Response) => {
     if (!userData.is_verify) {
       return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.EMAIL_IS_NOT_VERIFY));
     }
-    const token = signToken(userData);
+    const access_token = jwtGenerate(userData);
+    const refresh_token = jwtRefreshTokenGenerate(userData);
 
     await log.createLog(userData.id, "LOGIN");
 
-    res.send(successResponse({ token }));
+    res.send(
+      successResponse({
+        access_token: access_token,
+        refresh_token: refresh_token,
+      })
+    );
   } catch (error) {
     return res.json(errorResponse(404, ERRORS.TYPE.SERVER_ERROR, error));
   }
@@ -255,6 +272,26 @@ export const userLog = async (req: any, res: Response) => {
     if (result) {
       res.json(successResponse(result));
     }
+  } catch (error) {
+    return res.json(errorResponse(404, ERRORS.TYPE.SERVER_ERROR, error));
+  }
+};
+
+export const refreshToken = async (req: Request, res: Response) => {
+  try {
+    const token = req.body.refresh_token;
+
+    const { user_email } = (await decodeJwtRefresh(token)) as UserTy;
+
+    const userData: UserTy = (await test.getUserByEmail(user_email)) as UserTy;
+
+    const access_token = jwtGenerate(userData);
+
+    res.send(
+      successResponse({
+        access_token: access_token,
+      })
+    );
   } catch (error) {
     return res.json(errorResponse(404, ERRORS.TYPE.SERVER_ERROR, error));
   }

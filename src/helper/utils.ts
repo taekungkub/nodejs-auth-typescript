@@ -1,7 +1,10 @@
 import { Request } from "express";
-var jwt = require("jsonwebtoken");
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
+
 export const secretJWT = process.env.SECRET_JWT || "foobarsuper";
-const bcrypt = require("bcrypt");
+export const secretJWTRefresh = process.env.SECRET_JWT_REFRESH || "snakelionbird";
+
 const saltRounds = 10;
 
 export function errorResponse(statusCode: Number = 404, type: string, desc?: any) {
@@ -31,23 +34,21 @@ export function getTokenBearer(req: Request) {
     const bearerToken = bearer[1];
     return bearerToken;
   }
+
+  return null;
 }
 
 export function signToken(payload: any) {
-  try {
-    delete payload.user_password;
-    delete payload.verify_token;
-    delete payload.reset_password_token;
-    const token = jwt.sign(payload, secretJWT, { expiresIn: "5h" });
-    return token;
-  } catch (error) {
-    console.log(error);
-  }
+  delete payload.user_password;
+  delete payload.verify_token;
+  delete payload.reset_password_token;
+  const token = jwt.sign(payload, secretJWT, { expiresIn: "5h" });
+  return token;
 }
 
 export function decodedJWT(token: any) {
   return new Promise((resolve, reject) => {
-    jwt.verify(token, secretJWT, function (err: Error, decoded: any) {
+    jwt.verify(token, secretJWT, (err: any, decoded: any) => {
       if (err) {
         reject(err);
       }
@@ -56,19 +57,49 @@ export function decodedJWT(token: any) {
   });
 }
 
-export function hashPassword(myPlaintextPassword: String) {
+export function decodeJwtRefresh(token: any) {
   return new Promise((resolve, reject) => {
-    bcrypt.hash(myPlaintextPassword, saltRounds, function (err: Error, hash: String) {
+    jwt.verify(token, secretJWTRefresh, (err: any, decoded: any) => {
+      if (err) {
+        reject(err);
+      }
+      resolve(decoded);
+    });
+  });
+}
+
+export function hashPassword(myPlaintextPassword: string) {
+  return new Promise((resolve, reject) => {
+    bcrypt.hash(myPlaintextPassword, saltRounds, (err, hash: string) => {
       if (err) throw err;
       resolve(hash);
     });
   });
 }
 
-export function comparePassword(myPlaintextPassword: String, passwordHash: String) {
+export function comparePassword(myPlaintextPassword: string, passwordHash: string) {
   return new Promise((resolve, reject) => {
-    bcrypt.compare(myPlaintextPassword, passwordHash, function (err: Error, result: Boolean) {
+    bcrypt.compare(myPlaintextPassword, passwordHash, (err, result: Boolean) => {
       resolve(result);
     });
   });
 }
+
+export function jwtGenerate(user: any) {
+  delete user.user_password;
+  delete user.verify_token;
+  delete user.reset_password_token;
+  const accessToken = jwt.sign(user, secretJWT, { expiresIn: "30s" });
+  return accessToken;
+}
+
+export const jwtRefreshTokenGenerate = (user: any) => {
+  delete user.user_password;
+  delete user.verify_token;
+  delete user.reset_password_token;
+  const refreshToken = jwt.sign(user, secretJWTRefresh, {
+    expiresIn: "5m",
+  });
+
+  return refreshToken;
+};

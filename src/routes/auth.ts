@@ -2,6 +2,7 @@ import { Router } from "express";
 const router = Router();
 import * as authController from "../controllers/authController";
 import checkAuth from "../middleware/checkAuth";
+import checkRefreshToken from "../middleware/checkRefreshToken";
 
 //------------ Login Route ------------//
 
@@ -15,5 +16,6 @@ router.post("/register", authController.register);
 router.post("/resend/verify", authController.resendVerify);
 router.put("/changeprofile", checkAuth, authController.changeProfile);
 router.get("/profile/log", checkAuth, authController.userLog);
+router.post("/refresh-token", checkRefreshToken, authController.refreshToken);
 
 export default router;
