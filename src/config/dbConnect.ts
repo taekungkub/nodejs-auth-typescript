@@ -1,7 +1,7 @@
-const mongoose = require("mongoose");
-import mysql from "mysql2/promise";
-let conn: any;
-import dbConfig from "./dbConfig";
+// const mongoose = require("mongoose");
+// import mysql from "mysql2/promise";
+// let conn: any;
+// import dbConfig from "./dbConfig";
 
 // const MongoURI =
 //   process.env.MONGODB_URL ||
@@ -16,36 +16,36 @@ import dbConfig from "./dbConfig";
 //     .catch((err: Error) => console.log(err));
 // }
 
-async function init() {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const connection = await mysql.createConnection({
-        host: dbConfig.host,
-        user: dbConfig.user,
-        database: dbConfig.database,
-        password: dbConfig.password,
-        port: dbConfig.port,
-        timezone: dbConfig.timezone,
-      });
-      if (connection) {
-        conn = connection;
-        resolve(conn);
-      }
-    } catch (error) {
-      reject(error);
-    }
-  });
-}
+// async function init() {
+//   return new Promise(async (resolve, reject) => {
+//     try {
+//       const connection = await mysql.createConnection({
+//         host: dbConfig.host,
+//         user: dbConfig.user,
+//         database: dbConfig.database,
+//         password: dbConfig.password,
+//         port: dbConfig.port,
+//         timezone: dbConfig.timezone,
+//       });
+//       if (connection) {
+//         conn = connection;
+//         resolve(conn);
+//       }
+//     } catch (error) {
+//       reject(error);
+//     }
+//   });
+// }
 
-async function teardown() {
-  return new Promise(async (resolve, rej) => {
-    try {
-      await conn.end();
-      resolve("");
-    } catch (error) {
-      rej(error);
-    }
-  });
-}
+// async function teardown() {
+//   return new Promise(async (resolve, rej) => {
+//     try {
+//       await conn.end();
+//       resolve("");
+//     } catch (error) {
+//       rej(error);
+//     }
+//   });
+// }
 
-export { init, conn, teardown };
+// export { init, conn, teardown };

@@ -2,7 +2,7 @@
 
 ## This project is for learn api authentication and shopping cart.
 
-### The structure is not clean and the handling of 404 is out of order. But will continue to update continuously all the time
+### The structure is not clean and the handling of 404 is out of order.
 
 <ul>
     <li> <h4>POINT </li>
