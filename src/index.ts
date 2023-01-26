@@ -9,6 +9,8 @@ import swaggerUi from "swagger-ui-express";
 import docs from "./api-document.json";
 import fs from "fs";
 import ymal from "js-yaml";
+import { createClient } from "redis";
+
 //------------ Routes -------------------//
 import indexRoutes from "./routes/index";
 import authRoutes from "./routes/auth";
@@ -16,6 +18,7 @@ import productRoutes from "./routes/product";
 import userRoutes from "./routes/user";
 import roleRoutes from "./routes/role";
 import orderRoutes from "./routes/order";
+import { RedisService } from "./config/redisService";
 //------------ Config -------------------//
 const app: Express = express();
 dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
@@ -36,12 +39,15 @@ MysqlServices.pool = mysql.createPool({
 
 MysqlServices.pool
   .getConnection()
-  .then(() => {
-    console.log("Connection to the DB successful");
-  })
-  .catch((err) => {
-    console.error("Error connecting to DB: ", err);
-  });
+  .then(() => console.log("Connection to the DB successful"))
+  .catch((err) => console.error("Error connecting to DB: ", err));
+
+//------------ Redis Connection -------------------//
+
+(async () => {
+  RedisService.cache = createClient();
+  RedisService.cache.connect().catch((err) => console.error("Error connecting to redis: ", err));
+})();
 
 //------------ Routes -------------------//
 
