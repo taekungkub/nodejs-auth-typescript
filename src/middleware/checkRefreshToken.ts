@@ -1,7 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import { ERRORS } from "../helper/Errors";
-import { getTokenBearer, secretJWTRefresh, errorResponse } from "../helper/utils";
+import { getTokenBearer, errorResponse } from "../helper/utils";
 import jwt from "jsonwebtoken";
+import { secretJWTRefresh } from "../config/globalConfig";
 
 export default function checkRefreshToken(req: Request, res: Response, next: NextFunction) {
   const token = req.body.refresh_token;

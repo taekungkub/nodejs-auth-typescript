@@ -88,7 +88,9 @@ export function jwtGenerate(user: any) {
   delete user.user_password;
   delete user.verify_token;
   delete user.reset_password_token;
-  const accessToken = jwt.sign(user, secretJWT, { expiresIn: "30s" });
+  delete user.role_id;
+  delete user.role_title;
+  const accessToken = jwt.sign(user, secretJWT, { expiresIn: "12h" });
   return accessToken;
 }
 
@@ -96,8 +98,10 @@ export const jwtRefreshTokenGenerate = (user: any) => {
   delete user.user_password;
   delete user.verify_token;
   delete user.reset_password_token;
+  delete user.role_id;
+  delete user.role_title;
   const refreshToken = jwt.sign(user, secretJWTRefresh, {
-    expiresIn: "5m",
+    expiresIn: "1d",
   });
 
   return refreshToken;
