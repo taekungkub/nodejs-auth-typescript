@@ -1,3 +1,5 @@
+import { nodemailerCredentials } from "../config/globalConfig";
+
 // main.js
 const nodemailer = require("nodemailer");
 
@@ -6,8 +8,8 @@ const onSendVerifyToEmail = (receiver: string, token: string) => {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: "taekungkub16@gmail.com", // your email
-      pass: "rxtvguubwurbnfvu", // your password
+      user: nodemailerCredentials.email, // your email
+      pass: nodemailerCredentials.password, // your password
     },
   });
 

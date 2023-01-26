@@ -2,8 +2,7 @@ import { Request } from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
-export const secretJWT = process.env.SECRET_JWT || "foobarsuper";
-export const secretJWTRefresh = process.env.SECRET_JWT_REFRESH || "snakelionbird";
+import { secretJWT, secretJWTRefresh } from "../config/globalConfig";
 
 const saltRounds = 10;
 
