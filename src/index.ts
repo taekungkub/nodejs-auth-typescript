@@ -39,14 +39,17 @@ MysqlServices.pool = mysql.createPool({
 
 MysqlServices.pool
   .getConnection()
-  .then(() => console.log("Connection to the DB successful"))
+  .then(() => console.log("Connection to the DB "))
   .catch((err) => console.error("Error connecting to DB: ", err));
 
 //------------ Redis Connection -------------------//
 
 (async () => {
   RedisService.cache = createClient();
-  RedisService.cache.connect().catch((err) => console.error("Error connecting to redis: ", err));
+  RedisService.cache
+    .connect()
+    .then(() => console.log("Connection to the redis "))
+    .catch((err) => console.error("Error connecting to redis: ", err));
 })();
 
 //------------ Routes -------------------//
