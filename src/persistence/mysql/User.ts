@@ -49,9 +49,10 @@ export const getUsers = async () => {
       LEFT OUTER JOIN tb_role
       ON tb_role_user.role_id = tb_role.role_id
       `);
-    if (rows) {
-      return Promise.resolve(rows[0]);
+    if (!rows) {
+      return Promise.reject("Users not found");
     }
+    return Promise.resolve(rows[0]);
   } catch (error) {
     return Promise.reject(error);
   }
@@ -127,9 +128,12 @@ export const updateUser = async (userData: UserTy, id: string) => {
 export const removeUser = async (id: String) => {
   try {
     const [rows] = (await MysqlServices.pool.query("DELETE FROM tb_user  WHERE id = ?", [id])) as Array<any>;
-    if (rows) {
-      return Promise.resolve(rows);
+
+    if (!rows) {
+      return Promise.reject("Error delete user");
     }
+
+    return Promise.resolve(rows);
   } catch (error) {
     return Promise.reject(error);
   }

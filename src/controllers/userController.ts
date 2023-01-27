@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
 import { RegisterSchemaBody, UserTy } from "../Types/UserTy";
-import { errorResponse, successResponse, getTokenBearer, signToken, hashPassword, comparePassword, decodedJWT } from "../helper/utils";
+import { errorResponse, successResponse, hashPassword } from "../helper/utils";
 import { ERRORS } from "../helper/Errors";
-import * as test from "../persistence/mysql/User";
+import * as db from "../persistence/mysql/User";
+import { RedisService } from "../config/redisService";
 
 export const createUser = async (req: Request, res: Response) => {
   try {
@@ -13,18 +14,18 @@ export const createUser = async (req: Request, res: Response) => {
       return res.json(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, error.message));
     }
 
-    let userList = (await test.getUsers()) as Array<any>;
+    let userList = (await db.getUsers()) as Array<any>;
     const existEmail = userList.find((v: any) => v.user_email === user_email);
     if (existEmail) return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.EMAIL_ALREADY_EXISTS));
 
     const passwordHash = await hashPassword(user_password);
 
-    const result: any = await test.createUser({ ...req.body, user_password_hash: passwordHash });
-    await test.updateStatusVerify(!is_verify ? false : true, user_email);
+    const result: any = await db.createUser({ ...req.body, user_password_hash: passwordHash });
+    await db.updateStatusVerify(!is_verify ? false : true, user_email);
 
     if (result) {
       if (role_id) {
-        await test.addRoleUser(role_id, result.insertId);
+        await db.addRoleUser(role_id, result.insertId);
       }
 
       res.json(successResponse("Create user success."));
@@ -36,10 +37,16 @@ export const createUser = async (req: Request, res: Response) => {
 
 export const getAllUser = async (req: Request, res: Response) => {
   try {
-    const result = await test.getUsers();
-    if (!result) {
-      return res.send(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, "User not found"));
-    }
+    const redisListKey = "user:userList";
+
+    // const cachedData = await RedisService.getCache(redisListKey);
+
+    // if (cachedData) {
+    //   return res.send(successResponse(JSON.parse(cachedData)));
+    // }
+
+    const result = await db.getUsers();
+    RedisService.setCache(redisListKey, 10, result);
     res.send(successResponse(result));
   } catch (error) {
     return res.json(errorResponse(400, ERRORS.TYPE.BAD_REQUEST, error));
@@ -49,10 +56,14 @@ export const getAllUser = async (req: Request, res: Response) => {
 export const getUserById = async (req: Request, res: Response) => {
   try {
     const id = req.params.id;
-    const result = await test.getUserById(id);
-    if (!result) {
-      return res.send(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND));
+    let cachedData = await RedisService.getCache(id);
+
+    if (cachedData) {
+      return res.send(successResponse(JSON.parse(cachedData)));
     }
+
+    const result: UserTy = await db.getUserById(id);
+    RedisService.setCache(id, 20, result);
     res.send(successResponse(result));
   } catch (error) {
     return res.json(errorResponse(400, ERRORS.TYPE.BAD_REQUEST, error));
@@ -64,17 +75,18 @@ export const updateUser = async (req: Request, res: Response) => {
     const userData: UserTy = req.body;
     const { id } = req.params;
     const { role_id } = req.body;
-    const user: UserTy = await test.getUserById(id);
+    const user: UserTy = await db.getUserById(id);
 
-    const result = await test.updateUser(userData, id);
+    const result = await db.updateUser(userData, id);
 
     if (role_id) {
       if (!user.role_id) {
-        await test.addRoleUser(role_id, id);
+        await db.addRoleUser(role_id, id);
       } else {
-        await test.updateRoleUser(role_id, id);
+        await db.updateRoleUser(role_id, id);
       }
     }
+    RedisService.clearCache(id);
     res.send(successResponse(result));
   } catch (error) {
     return res.json(errorResponse(404, ERRORS.TYPE.SERVER_ERROR, error));
@@ -84,11 +96,10 @@ export const updateUser = async (req: Request, res: Response) => {
 export const removeUser = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    await test.getUserById(id);
-    const result = await test.removeUser(id);
-    if (!result) {
-      return res.send(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, "Error updating user"));
-    }
+    await db.getUserById(id);
+    const result = await db.removeUser(id);
+
+    RedisService.clearCache(id);
     res.send(successResponse(result));
   } catch (error) {
     return res.json(errorResponse(400, ERRORS.TYPE.BAD_REQUEST, error));
