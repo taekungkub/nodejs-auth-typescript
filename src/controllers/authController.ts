@@ -68,21 +68,16 @@ export const register = async (req: Request, res: Response) => {
 
     const passwordHash = await hashPassword(user_password);
     const tokenForVerify = signToken({ user_email });
-    const result = await test.createUser({ ...req.body, user_password_hash: passwordHash });
+    await test.createUser({ ...req.body, user_password_hash: passwordHash });
     await test.updateStatusVerify(false, user_email);
+    await onSendVerifyToEmail(user_email, tokenForVerify);
 
-    //send email with token
-
-    if (result) {
-      onSendVerifyToEmail(user_email, tokenForVerify);
-
-      res.json(
-        successResponse({
-          description: "Register success. Please check your email for verify.",
-          token: tokenForVerify,
-        })
-      );
-    }
+    res.json(
+      successResponse({
+        description: "Register success. Please check your email for verify.",
+        token: tokenForVerify,
+      })
+    );
   } catch (error) {
     return res.json(errorResponse(404, ERRORS.TYPE.SERVER_ERROR, error));
   }
@@ -139,12 +134,10 @@ export const resendVerify = async (req: Request, res: Response) => {
     if (userData.is_verify) {
       return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, "This email has been verify."));
     }
-
-    await log.createLog(userData.id, "USER IS RESEND VERIFY");
-
     const tokenForVerify = signToken({ user_email });
 
-    onSendVerifyToEmail(user_email, tokenForVerify);
+    await log.createLog(userData.id, "USER IS RESEND VERIFY");
+    await onSendVerifyToEmail(user_email, tokenForVerify);
 
     res.json(
       successResponse({
