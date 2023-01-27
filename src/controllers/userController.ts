@@ -39,11 +39,11 @@ export const getAllUser = async (req: Request, res: Response) => {
   try {
     const redisListKey = "user:userList";
 
-    // const cachedData = await RedisService.getCache(redisListKey);
+    const cachedData = await RedisService.getCache(redisListKey);
 
-    // if (cachedData) {
-    //   return res.send(successResponse(JSON.parse(cachedData)));
-    // }
+    if (cachedData) {
+      return res.send(successResponse(JSON.parse(cachedData)));
+    }
 
     const result = await db.getUsers();
     RedisService.setCache(redisListKey, 10, result);
