@@ -3,7 +3,6 @@ import { ChangepasswordSchemaBody, LoginSchemaBody, RegisterSchemaBody, UserTy }
 import {
   errorResponse,
   successResponse,
-  getTokenBearer,
   signToken,
   hashPassword,
   comparePassword,
@@ -258,14 +257,11 @@ export const changeProfile = async (req: any, res: Response) => {
   }
 };
 
-export const userLog = async (req: any, res: Response) => {
+export const userLog = async (req: Request, res: Response) => {
   try {
-    const token = getTokenBearer(req);
-    const { id }: any = await decodedJWT(token);
+    const { id } = req.user as UserTy;
     const result = await test.getUserLog(id);
-    if (result) {
-      res.json(successResponse(result));
-    }
+    res.json(successResponse(result));
   } catch (error) {
     return res.json(errorResponse(404, ERRORS.TYPE.SERVER_ERROR, error));
   }
@@ -273,11 +269,9 @@ export const userLog = async (req: any, res: Response) => {
 
 export const refreshToken = async (req: Request, res: Response) => {
   try {
-    const token = req.body.refresh_token;
+    const { user_email } = req.user as UserTy;
 
-    const { user_email } = (await decodeJwtRefresh(token)) as UserTy;
-
-    const userData: UserTy = (await test.getUserByEmail(user_email)) as UserTy;
+    const userData: UserTy = await test.getUserByEmail(user_email);
 
     const access_token = jwtGenerate(userData);
 

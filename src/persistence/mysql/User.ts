@@ -190,7 +190,12 @@ export const getUserById = async (id: string) => {
 
 export const getUserLog = async (id: string) => {
   try {
-    const [rows] = await MysqlServices.pool.query("SELECT * FROM  tb_user_activity_log WHERE user_id = ?", [id]);
+    const [rows] = (await MysqlServices.pool.query("SELECT * FROM tb_user_activity_log WHERE user_id = ?", [id])) as Array<any>;
+
+    if (rows.length === 0) {
+      return Promise.reject("Logs not found");
+    }
+
     return Promise.resolve(rows);
   } catch (error) {
     return Promise.reject(error);

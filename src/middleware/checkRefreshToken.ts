@@ -12,6 +12,8 @@ export default function checkRefreshToken(req: Request, res: Response, next: Nex
       if (err) {
         return res.json(errorResponse(403, ERRORS.TYPE.BAD_REQUEST, ERRORS.TOKEN_INVALID));
       }
+
+      req.user = decoded;
       next();
     });
   } else {

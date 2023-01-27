@@ -1,11 +1,10 @@
 import { Router } from "express";
-import passport from "passport";
 const router = Router();
 import * as authController from "../controllers/authController";
 import checkRefreshToken from "../middleware/checkRefreshToken";
 import { checkAuth } from "../middleware/passport";
 
-//------------ Login Route ------------//
+//------------ auth route ------------//
 
 router.get("/profile", checkAuth, authController.userProfile);
 router.post("/login", authController.login);
