@@ -1,4 +1,4 @@
-# Nodejs + Express + JWT + Typescript + Mysql.
+# Nodejs + Express + Passport JWT + Mysql + Redis + Typescript.
 
 ## This project is for learn api authentication and shopping cart.
 
