@@ -162,10 +162,9 @@ export const resendVerify = async (req: Request, res: Response) => {
 
 export const userProfile = async (req: Request, res: Response) => {
   try {
-    const token = getTokenBearer(req);
+    const user = req.user as UserTy;
 
-    const decodeToken: any = await decodedJWT(token);
-    const result = await test.getUserByEmail(decodeToken.user_email);
+    const result = await test.getUserByEmail(user.user_email);
     res.json(successResponse(result));
   } catch (error) {
     return res.json(errorResponse(404, ERRORS.TYPE.SERVER_ERROR, error));
@@ -181,16 +180,12 @@ export const changePassword = async (req: Request, res: Response) => {
     if (error) {
       return res.json(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, error.message));
     }
+    const { id } = req.user as UserTy;
 
-    const token = getTokenBearer(req);
-    const { id }: UserTy = (await decodedJWT(token)) as UserTy;
+    const passwordHash = await hashPassword(user_password);
+    await test.updatePassword(passwordHash, id);
     await log.createLog(id, "USER CHANGE PASSWORD");
-
-    const passwordHash: string = (await hashPassword(user_password)) as string;
-    const result = await test.updatePassword(passwordHash, id);
-    if (result) {
-      res.json(successResponse("Change password success"));
-    }
+    res.json(successResponse("Change password success"));
   } catch (error) {
     return res.json(errorResponse(404, ERRORS.TYPE.SERVER_ERROR, error));
   }
@@ -254,8 +249,7 @@ export const changePasswordWithCode = async (req: Request, res: Response) => {
 export const changeProfile = async (req: any, res: Response) => {
   try {
     const userData: UserTy = req.body;
-    const token = getTokenBearer(req);
-    const { id }: any = await decodedJWT(token);
+    const { id }: UserTy = req.user;
     await test.updateProfile(id, userData);
     await log.createLog(id, "USER UPDATE PROFILE");
     res.json(successResponse("Change profile success"));

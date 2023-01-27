@@ -61,9 +61,11 @@ export const getUsers = async () => {
 export const updatePassword = async (password: string, id: string) => {
   try {
     const [rows] = await MysqlServices.pool.query("UPDATE tb_user SET user_password=? WHERE id = ?", [password, id]);
-    if (rows) {
-      return Promise.resolve(rows);
+    if (!rows) {
+      return Promise.reject("Error update password");
     }
+
+    return Promise.resolve(rows);
   } catch (error) {
     return Promise.reject(error);
   }

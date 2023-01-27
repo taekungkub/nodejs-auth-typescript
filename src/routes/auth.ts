@@ -1,8 +1,9 @@
 import { Router } from "express";
+import passport from "passport";
 const router = Router();
 import * as authController from "../controllers/authController";
-import checkAuth from "../middleware/checkAuth";
 import checkRefreshToken from "../middleware/checkRefreshToken";
+import { checkAuth } from "../middleware/passport";
 
 //------------ Login Route ------------//
 

@@ -68,9 +68,9 @@ export function decodeJwtRefresh(token: any) {
 }
 
 export function hashPassword(myPlaintextPassword: string) {
-  return new Promise((resolve, reject) => {
+  return new Promise<string>((resolve, reject) => {
     bcrypt.hash(myPlaintextPassword, saltRounds, (err, hash: string) => {
-      if (err) throw err;
+      if (err) reject(err);
       resolve(hash);
     });
   });
@@ -79,6 +79,7 @@ export function hashPassword(myPlaintextPassword: string) {
 export function comparePassword(myPlaintextPassword: string, passwordHash: string) {
   return new Promise((resolve, reject) => {
     bcrypt.compare(myPlaintextPassword, passwordHash, (err, result: Boolean) => {
+      if (err) reject(err);
       resolve(result);
     });
   });

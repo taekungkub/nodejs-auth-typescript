@@ -10,6 +10,7 @@ import docs from "./api-document.json";
 import fs from "fs";
 import ymal from "js-yaml";
 import { createClient } from "redis";
+import { PassportService } from "./config/passportService";
 
 //------------ Routes -------------------//
 import indexRoutes from "./routes/index";
@@ -19,12 +20,14 @@ import userRoutes from "./routes/user";
 import roleRoutes from "./routes/role";
 import orderRoutes from "./routes/order";
 import { RedisService } from "./config/redisService";
+
 //------------ Config -------------------//
 const app: Express = express();
 dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cors());
+PassportService.passport.initialize();
 
 //------------ DB Connection ------------//
 

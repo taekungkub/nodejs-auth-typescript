@@ -1,7 +1,6 @@
 import { Router } from "express";
-
-const router = Router();
 import * as UserController from "../controllers/userController";
+const router = Router();
 
 //------------ User Route ------------//
 router.get("/", UserController.getAllUser);
