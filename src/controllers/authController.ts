@@ -9,7 +9,6 @@ import {
   decodedJWT,
   jwtGenerate,
   jwtRefreshTokenGenerate,
-  decodeJwtRefresh,
 } from "../helper/utils";
 import { ERRORS } from "../helper/Errors";
 let validator = require("validator");
@@ -27,12 +26,11 @@ export const login = async (req: Request, res: Response) => {
       return res.json(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, error.message));
     }
 
-    const userData: UserTy = (await test.getUserByEmail(user_email)) as UserTy;
-    if (!userData) {
-      return res.json(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, ERRORS.INCORRECT_EMAIL_OR_PASSWORD));
-    }
-    const isPassword = await comparePassword(user_password, userData.user_password);
-    if (!isPassword) {
+    const userData: UserTy = await test.getUserByEmail(user_email);
+
+    const isComparePassword = await comparePassword(user_password, userData.user_password);
+
+    if (!isComparePassword) {
       return res.json(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, ERRORS.INCORRECT_EMAIL_OR_PASSWORD));
     }
 
@@ -71,7 +69,7 @@ export const register = async (req: Request, res: Response) => {
     const passwordHash = await hashPassword(user_password);
     const tokenForVerify = signToken({ user_email });
     const result = await test.createUser({ ...req.body, user_password_hash: passwordHash });
-    const result2 = await test.updateStatusVerify(false, user_email);
+    await test.updateStatusVerify(false, user_email);
 
     //send email with token
 
@@ -99,13 +97,13 @@ export const activeUser = async (req: Request, res: Response) => {
 
     const { user_email }: any = await decodedJWT(code);
 
-    let userData: UserTy = (await test.getUserByEmail(user_email)) as UserTy;
-    if (!userData) {
-      return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.NOT_FOUND_USER));
-    } else if (userData.is_verify) {
+    let userData: UserTy = await test.getUserByEmail(user_email);
+
+    if (userData.is_verify) {
       return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.EMAIL_IS_VERIFY));
     }
-    const result = await test.updateStatusVerify(true, user_email);
+
+    await test.updateStatusVerify(true, user_email);
     await log.createLog(userData.id, "USER IS VERIFIED");
 
     res.json(
@@ -197,11 +195,13 @@ export const resetPassword = async (req: Request, res: Response) => {
     if (!user_email) {
       return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.INCORRECT_EMAIL));
     }
+
+    if (!validator.isEmail(user_email)) {
+      return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.EMAIL_INVALID));
+    }
     const user: UserTy = await test.getUserByEmail(user_email);
     const tokenForReset = signToken({ user_email });
-
     await test.updateResetPasswordToken(tokenForReset, user.user_email);
-
     await log.createLog(user.id, "USER REQUEST RESET PASSWORD");
     res.json(
       successResponse({
@@ -223,13 +223,13 @@ export const changePasswordWithCode = async (req: Request, res: Response) => {
       return res.json(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, ERRORS.PASSWORD_RESET_LINK_INVALID));
     }
 
-    const { user_email }: UserTy = (await decodedJWT(code)) as UserTy;
-
     const { error }: any = ChangepasswordSchemaBody.validate({ user_password, user_confirm_password });
 
     if (error) {
       return res.json(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, error.message));
     }
+
+    const { user_email } = (await decodedJWT(code)) as UserTy;
 
     let userData: UserTy = await test.getUserByEmail(user_email);
 

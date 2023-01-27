@@ -49,7 +49,7 @@ export function decodedJWT(token: any) {
   return new Promise((resolve, reject) => {
     jwt.verify(token, secretJWT, (err: any, decoded: any) => {
       if (err) {
-        reject(err);
+        reject(err.message ? err.message : err);
       }
       resolve(decoded);
     });

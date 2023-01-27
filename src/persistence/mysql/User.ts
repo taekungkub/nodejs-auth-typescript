@@ -8,6 +8,9 @@ export const createUser = async (user: UserTy) => {
       "INSERT INTO tb_user ( user_email, user_password, user_displayname , user_tel  , user_created) VALUES (?,?,?,?,NOW())",
       [user.user_email, user.user_password_hash, user.user_displayname, user.user_tel]
     );
+    if (!rows) {
+      return Promise.reject("create user error");
+    }
     return Promise.resolve(rows);
   } catch (error) {
     return Promise.reject(error);
