@@ -55,7 +55,7 @@ export async function createProduct(req: Request, res: Response) {
       );
     }
     const imageFile: FileTy = (req as MulterRequest).file;
-    const result: any = await db.createProduct(productData, imageFile.filename);
+    const result: any = await db.createProduct(productData, imageFile ? imageFile.filename : undefined);
     res.send(successResponse(result));
   } catch (error) {
     console.log(error);

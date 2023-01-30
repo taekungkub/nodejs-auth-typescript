@@ -1,5 +1,5 @@
 import express, { Express, Request, Response } from "express";
-import dotenv from "dotenv";
+import * as dotenv from "dotenv";
 import { MysqlServices } from "./config/mysqlService";
 import mysql from "mysql2/promise";
 import dbConfig from "./config/dbConfig";
@@ -28,7 +28,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cors());
 PassportService.passport.initialize();
-
 //------------ DB Connection ------------//
 
 MysqlServices.pool = mysql.createPool({
@@ -37,7 +36,6 @@ MysqlServices.pool = mysql.createPool({
   database: dbConfig.database,
   password: dbConfig.password,
   port: dbConfig.port,
-  timezone: dbConfig.timezone,
 });
 
 MysqlServices.pool
