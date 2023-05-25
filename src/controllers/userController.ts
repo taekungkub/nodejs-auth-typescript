@@ -4,6 +4,7 @@ import { errorResponse, successResponse, hashPassword } from "../helper/utils";
 import { ERRORS } from "../helper/Errors";
 import * as db from "../persistence/mysql/User";
 import { RedisService } from "../config/redisService";
+const redisListKey = "user:userList";
 
 export const createUser = async (req: Request, res: Response) => {
   try {
@@ -37,8 +38,6 @@ export const createUser = async (req: Request, res: Response) => {
 
 export const getAllUser = async (req: Request, res: Response) => {
   try {
-    const redisListKey = "user:userList";
-
     const cachedData = await RedisService.getCache(redisListKey);
 
     if (cachedData) {
@@ -100,6 +99,8 @@ export const removeUser = async (req: Request, res: Response) => {
     const result = await db.removeUser(id);
 
     RedisService.clearCache(id);
+    RedisService.clearCache(redisListKey);
+
     res.send(successResponse(result));
   } catch (error) {
     return res.json(errorResponse(400, ERRORS.TYPE.BAD_REQUEST, error));

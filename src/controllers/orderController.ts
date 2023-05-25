@@ -64,7 +64,12 @@ export const createOrder = async (req: Request, res: Response) => {
     const order: OrderTy = req.body;
     const order_products = req.body.order_product as Array<ProductCartTy>;
 
-    const existStock = order_products.find((v: ProductCartTy) => v.qty > v.quantity);
+    const promisess = order_products.map(async (v: ProductCartTy) => {
+      const product = (await dbProduct.getProduct(v.id)) as ProductTy;
+      return v.qty > product.quantity;
+    });
+    const checkedStocks = await Promise.all(promisess);
+    const existStock = checkedStocks.find((v) => v === true);
     if (existStock) return res.json(errorResponse(400, ERRORS.TYPE.SERVER_ERROR, "สินค้ามากกว่าจำนวนในสต้อก"));
 
     const result = (await db.createOrder(order)) as RowTy;

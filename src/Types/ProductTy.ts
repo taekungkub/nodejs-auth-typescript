@@ -1,7 +1,7 @@
 import * as Joi from "joi";
 
 export interface ProductTy {
-  id: number;
+  id: string;
   userId: string;
   title: string;
   metaTitle?: string;
@@ -13,7 +13,7 @@ export interface ProductTy {
 }
 
 export interface ProductCartTy {
-  id: number;
+  id: string;
   userId: string;
   title: string;
   metaTitle?: string;

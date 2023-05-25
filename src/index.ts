@@ -36,6 +36,7 @@ MysqlServices.pool = mysql.createPool({
   database: dbConfig.database,
   password: dbConfig.password,
   port: dbConfig.port,
+  timezone: "Asia/Bangkok",
 });
 
 MysqlServices.pool
