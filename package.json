@@ -2,11 +2,11 @@
   "name": "nodejs_authen",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
-    "dev": "NODE_ENV=development nodemon ",
+    "dev": "NODE_ENV=development nodemon",
     "build": "NODE_ENV=production tsc --project ./",
-    "production": "NODE_ENV=production nodemon ./dist/index.js"
+    "production": "NODE_ENV=production nodemon ./dist/app.js"
   },
   "keywords": [],
   "author": "",

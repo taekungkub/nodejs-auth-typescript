@@ -6,5 +6,6 @@
   "trailingComma": "es5",
   "bracketSpacing": true,
   "semi": true,
-  "htmlWhitespaceSensitivity": "ignore"
+  "htmlWhitespaceSensitivity": "ignore",
+  "yaml": true
 }

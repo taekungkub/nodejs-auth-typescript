@@ -6,11 +6,11 @@ import dbConfig from "./config/dbConfig";
 import bodyParser from "body-parser";
 import cors from "cors";
 import swaggerUi from "swagger-ui-express";
-import docs from "./api-document.json";
-import fs from "fs";
-import ymal from "js-yaml";
+
 import { createClient } from "redis";
 import { PassportService } from "./config/passportService";
+import { RedisService } from "./config/redisService";
+import { swaggerSpec } from "./docs";
 
 //------------ Routes -------------------//
 import indexRoutes from "./routes/index";
@@ -19,13 +19,14 @@ import productRoutes from "./routes/product";
 import userRoutes from "./routes/user";
 import roleRoutes from "./routes/role";
 import orderRoutes from "./routes/order";
-import { RedisService } from "./config/redisService";
+import taskRoutes from "./routes/task";
 
 //------------ Config -------------------//
 const app: Express = express();
 dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+// app.use(bodyParser.json());
+app.use(express.json());
 app.use(cors());
 PassportService.passport.initialize();
 //------------ DB Connection ------------//
@@ -36,7 +37,6 @@ MysqlServices.pool = mysql.createPool({
   database: dbConfig.database,
   password: dbConfig.password,
   port: dbConfig.port,
-  timezone: "Asia/Bangkok",
 });
 
 MysqlServices.pool
@@ -44,7 +44,7 @@ MysqlServices.pool
   .then(() => console.log("Connection to the DB "))
   .catch((err) => console.error("Error connecting to DB: ", err));
 
-//------------ Redis Connection -------------------//
+//------------ Redis Connection --------------//
 
 (async () => {
   RedisService.cache = createClient();
@@ -62,10 +62,22 @@ app.use("/products", productRoutes);
 app.use("/users", userRoutes);
 app.use("/roles", roleRoutes);
 app.use("/orders", orderRoutes);
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(docs));
+app.use("/", taskRoutes);
 
+// v1
+// app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(docs));
+// v2
 // const fileContents = fs.readFileSync("./src/api-document.yaml", "utf8");
 // const doc: any = ymal.load(fileContents);
+// v3
+app.use(
+  "/api/docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec, {
+    explorer: true,
+    customCss: ".models { display: none !important; }",
+  })
+);
 
 //------------ Port ---------------------//
 const port = process.env.PORT || 8000;

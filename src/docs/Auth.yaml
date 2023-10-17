@@ -1,0 +1,321 @@
+paths:
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      parameters:
+        - in: body
+          name: body
+          description: login user
+          schema:
+            properties:
+              user_email:
+                type: string
+              user_password:
+                type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          schema:
+            properties:
+              statusCode:
+                type: number
+              detail:
+                type: string
+              data:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  refresh_token:
+                    type: string
+        "400":
+          description: Resource not found
+        "404":
+          description: User not found
+        "500":
+          description: Server login failed!!
+  /auth/register:
+    post:
+      summary: null
+      tags:
+        - Auth
+      description: ""
+      parameters:
+        - in: body
+          name: body
+          description: register user
+          schema:
+            properties:
+              user_email:
+                type: string
+              user_password:
+                type: string
+              user_confirm_password:
+                type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: null
+          schema:
+            properties:
+              statusCode:
+                type: number
+              detail:
+                type: string
+              data:
+                type: object
+                properties:
+                  token:
+                    type: string
+        "400":
+          description: Resource not found
+        "404":
+          description: User not found
+        "500":
+          description: Server login failed!!
+  "/auth/activation/{code}":
+    get:
+      summary: null
+      tags:
+        - Auth
+      description: ""
+      parameters:
+        - in: path
+          name: code
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: null
+          schema:
+            properties:
+              statusCode:
+                type: number
+              detail:
+                type: string
+              data:
+                type: object
+                properties:
+                  token:
+                    type: string
+        "400":
+          description: Resource not found
+        "404":
+          description: User not found
+        "500":
+          description: Server login failed!!
+  /auth/resend/verify:
+    post:
+      summary: null
+      tags:
+        - Auth
+      description: ""
+      parameters:
+        - in: body
+          name: body
+          schema:
+            properties:
+              user_email:
+                type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: null
+          schema:
+            properties:
+              statusCode:
+                type: number
+              detail:
+                type: string
+              data:
+                type: object
+                properties:
+                  token:
+                    type: string
+        "400":
+          description: Resource not found
+        "404":
+          description: User not found
+        "500":
+          description: Server login failed!!
+  /auth/profile:
+    get:
+      summary: null
+      tags:
+        - Auth
+      description: ""
+      security:
+        - bearerAuth: []
+      parameters: []
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: null
+          schema:
+            $ref: "#/definitions/User"
+        "400":
+          description: Resource not found
+        "404":
+          description: User not found
+        "500":
+          description: Server Error!!
+  /auth/changepassword:
+    post:
+      summary: null
+      tags:
+        - Auth
+      description: null
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: body
+          in: body
+          description: null
+          schema:
+            properties:
+              user_password:
+                type: string
+              user_confirm_password:
+                type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Change password success
+          schema:
+            properties:
+              statusCode:
+                type: number
+              detail:
+                type: string
+              data:
+                type: object
+                properties:
+                  description:
+                    type: string
+        "400":
+          description: Resource not found
+        "403":
+          description: Token invalid
+        "404":
+          description: User not found
+        "500":
+          description: Server login failed!!
+  /auth/password/reset:
+    post:
+      summary: null
+      tags:
+        - Auth
+      description: ""
+      parameters:
+        - name: user_email
+          in: string
+          description: null
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Resend token for reset password success
+          schema:
+            properties:
+              statusCode:
+                type: number
+              detail:
+                type: string
+              data:
+                type: object
+                properties:
+                  description:
+                    type: string
+                  token:
+                    type: string
+        "400":
+          description: Resource not found
+        "404":
+          description: User not found
+        "500":
+          description: Server login failed!!
+  "/auth/password/new/{code}":
+    post:
+      summary: null
+      tags:
+        - Auth
+      description: ""
+      parameters:
+        - name: code
+          in: path
+          description: null
+        - name: user_password
+          in: string
+          description: null
+        - name: user_confirm_password
+          in: string
+          description: null
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Change password success
+          schema:
+            properties:
+              statusCode:
+                type: number
+              detail:
+                type: string
+              data:
+                type: object
+                properties:
+                  description:
+                    type: string
+        "400":
+          description: Resource not found
+        "403":
+          description: Token invalid
+        "404":
+          description: User not found
+        "500":
+          description: Server login failed!!
+  /auth/changeprofile:
+    put:
+      summary: null
+      tags:
+        - Auth
+      description: ""
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: body
+          name: body
+          schema:
+            properties:
+              user_displayname:
+                type: string
+              user_tel:
+                type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: null
+          schema:
+            properties:
+              statusCode:
+                type: number
+              detail:
+                type: string
+              data:
+                type: object
+                properties:
+                  token:
+                    type: string
+        "400":
+          description: Resource not found
+        "404":
+          description: User not found
+        "500":
+          description: Server login failed!!
