@@ -5,9 +5,9 @@ let validator = require("validator");
 import * as db from "../persistence/mysql/Order";
 import * as dbProduct from "../persistence/mysql/Product";
 
-import { OrderProductTy, OrderTy } from "../Types/OrderTy";
-import { RowTy } from "../Types/RowTy";
-import { ProductCartTy, ProductTy } from "../Types/ProductTy";
+import { OrderProductTy, OrderTy } from "../types/OrderTy";
+import { RowTy } from "../types/RowTy";
+import { ProductCartTy, ProductTy } from "../types/ProductTy";
 
 export const getAllOrder = async (req: Request, res: Response) => {
   const result = (await db.getOrders()) as Array<OrderTy>;

@@ -3,7 +3,7 @@ import { errorResponse, successResponse, getTokenBearer, signToken, hashPassword
 import { ERRORS } from "../helper/Errors";
 import * as db from "../persistence/mysql/Product";
 import * as fs from "fs";
-import { ProductSchemaBody, ProductTy } from "../Types/ProductTy";
+import { ProductSchemaBody, ProductTy } from "../types/ProductTy";
 
 interface FileTy {
   fieldname: string;

@@ -1,5 +1,5 @@
 import { MysqlServices } from "../../config/mysqlService";
-import { UserTy } from "../../Types/UserTy";
+import { UserTy } from "../../types/UserTy";
 const { v4: uuidv4 } = require("uuid");
 
 export const createUser = async (user: UserTy) => {

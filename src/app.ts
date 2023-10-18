@@ -1,16 +1,16 @@
-import express, { Express, Request, Response } from "express";
-import * as dotenv from "dotenv";
-import { MysqlServices } from "./config/mysqlService";
+import express, { Express } from "express";
 import mysql from "mysql2/promise";
-import dbConfig from "./config/dbConfig";
-import bodyParser from "body-parser";
-import cors from "cors";
 import swaggerUi from "swagger-ui-express";
+import bodyParser from "body-parser";
+import * as dotenv from "dotenv";
+import cors from "cors";
 
+import { MysqlServices } from "./config/mysqlService";
 import { createClient } from "redis";
 import { PassportService } from "./config/passportService";
 import { RedisService } from "./config/redisService";
 import { swaggerSpec } from "./docs";
+import dbConfig from "./config/dbConfig";
 
 //------------ Routes -------------------//
 import indexRoutes from "./routes/index";
@@ -25,7 +25,6 @@ import taskRoutes from "./routes/task";
 const app: Express = express();
 dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
 app.use(bodyParser.urlencoded({ extended: false }));
-// app.use(bodyParser.json());
 app.use(express.json());
 app.use(cors());
 PassportService.passport.initialize();
@@ -55,14 +54,15 @@ MysqlServices.pool
 })();
 
 //------------ Routes -------------------//
-
-app.use("/", indexRoutes);
-app.use("/auth", authRoutes);
-app.use("/products", productRoutes);
-app.use("/users", userRoutes);
-app.use("/roles", roleRoutes);
-app.use("/orders", orderRoutes);
-app.use("/", taskRoutes);
+const router = express.Router({ mergeParams: true });
+router.use(indexRoutes);
+router.use(authRoutes);
+router.use(productRoutes);
+router.use(userRoutes);
+router.use(roleRoutes);
+router.use(orderRoutes);
+router.use(taskRoutes);
+app.use("/api", router);
 
 // v1
 // app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(docs));

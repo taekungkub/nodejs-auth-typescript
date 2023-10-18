@@ -1,5 +1,5 @@
 import { MysqlServices } from "../../config/mysqlService";
-import { ProductTy } from "../../Types/ProductTy";
+import { ProductTy } from "../../types/ProductTy";
 
 export const getProducts = async () => {
   try {

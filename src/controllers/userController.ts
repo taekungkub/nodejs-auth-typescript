@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { RegisterSchemaBody, UserTy } from "../Types/UserTy";
+import { RegisterSchemaBody, UserTy } from "../types/UserTy";
 import { errorResponse, successResponse, hashPassword } from "../helper/utils";
 import { ERRORS } from "../helper/Errors";
 import * as db from "../persistence/mysql/User";

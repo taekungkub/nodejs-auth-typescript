@@ -94,7 +94,18 @@
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
-      "@/docs/*": ["src/docs/*"]
-    }
+      "@/config/*": ["src/config/*"],
+      "@/controller/*": ["src/controller/*"],
+      "@/helper/*": ["src/helper/*"],
+      "@/middleware/*": ["src/middleware/*"],
+      "@/models/*": ["src/models/*"],
+      "@/routes/*": ["src/routes/*"],
+      "@/types/*": ["src/types/*"],
+      "@/docs/*": ["src/docs/*"],
+
+    },
+  },
+  "ts-node": {
+    "require": ["tsconfig-paths/register"]
   }
 }

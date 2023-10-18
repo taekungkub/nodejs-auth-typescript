@@ -31,9 +31,12 @@ paths:
                   refresh_token:
                     type: string
         "400":
-          description: Resource not found
-        "404":
-          description: User not found
+          schema:
+            properties:
+              statusCode:
+                type: number
+              description:
+                type: string
         "500":
           description: Server login failed!!
   /auth/register:

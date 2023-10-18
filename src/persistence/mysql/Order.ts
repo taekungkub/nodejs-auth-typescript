@@ -1,5 +1,5 @@
 import { MysqlServices } from "../../config/mysqlService";
-import { OrderProductTy, OrderTy } from "../../Types/OrderTy";
+import { OrderProductTy, OrderTy } from "../../types/OrderTy";
 
 export const getOrders = async () => {
   try {

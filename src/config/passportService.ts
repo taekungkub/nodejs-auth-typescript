@@ -6,7 +6,7 @@ const JwtStrategy = passportJWT.Strategy;
 const ExtractJwt = passportJWT.ExtractJwt;
 
 import * as db from "../persistence/mysql/User";
-import { UserTy } from "../Types/UserTy";
+import { UserTy } from "../types/UserTy";
 
 // passport.serializeUser((user: any, done) => {
 //   done(null, user.id);

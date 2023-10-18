@@ -6,16 +6,17 @@ import { checkAuth } from "../middleware/passport";
 
 //------------ auth route ------------//
 
-router.get("/profile", checkAuth, authController.userProfile);
-router.post("/login", authController.login);
-router.get("/activation/:code?", authController.activeUser);
-router.post("/changepassword", checkAuth, authController.changePassword);
-router.post("/password/reset", authController.resetPassword);
-router.post("/password/new/:code?", authController.changePasswordWithCode);
-router.post("/register", authController.register);
-router.post("/resend/verify", authController.resendVerify);
-router.put("/changeprofile", checkAuth, authController.changeProfile);
-router.get("/profile/log", checkAuth, authController.userLog);
-router.post("/refresh-token", checkRefreshToken, authController.refreshToken);
+router.post("/auth/login", authController.login);
+router.post("/auth/register", authController.register);
+router.get("/auth/activation/:code?", authController.activeUser);
+router.post("/auth/changepassword", checkAuth, authController.changePassword);
+router.post("/auth/password/reset", authController.resetPassword);
+router.post("/auth/password/new/:code?", authController.changePasswordWithCode);
+router.post("/auth/resend/verify", authController.resendVerify);
+router.post("/auth/refresh-token", checkRefreshToken, authController.refreshToken);
+
+router.get("/auth/profile", checkAuth, authController.userProfile);
+router.put("/auth/changeprofile", checkAuth, authController.changeProfile);
+router.get("/auth/profile/log", checkAuth, authController.userLog);
 
 export default router;

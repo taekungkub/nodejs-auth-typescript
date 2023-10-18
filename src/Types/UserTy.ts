@@ -1,5 +1,6 @@
 import * as Joi from "joi";
 import { ERRORS } from "../helper/Errors";
+import { JwtPayload } from "jsonwebtoken";
 
 const patternPassword = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,}$");
 
@@ -16,6 +17,8 @@ export interface UserTy {
   role_id: string;
   role_title: string;
 }
+
+export interface UserJwtTy extends JwtPayload, UserTy {}
 
 export const LoginSchemaBody = Joi.object<UserTy>({
   user_email: Joi.string().email().required(),
@@ -36,7 +39,17 @@ export const RegisterSchemaBody = Joi.object<UserTy>({
   role_id: Joi.allow(),
 });
 
-export const ChangepasswordSchemaBody = Joi.object<UserTy>({
+export const ChangepasswordSchemaBody = Joi.object({
+  user_password: Joi.string().required().pattern(patternPassword).messages({
+    "string.pattern.base": ERRORS.PASSWORD_NOT_STRONG,
+  }),
+  user_confirm_password: Joi.valid(Joi.ref("user_password")).required().messages({
+    "any.only": ERRORS.PASSWORD_NOT_MATCH,
+  }),
+  current_password: Joi.required(),
+});
+
+export const ChangepasswordWithCodeSchema = Joi.object({
   user_password: Joi.string().required().pattern(patternPassword).messages({
     "string.pattern.base": ERRORS.PASSWORD_NOT_STRONG,
   }),

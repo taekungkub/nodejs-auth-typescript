@@ -6,7 +6,7 @@ import * as db from "../persistence/mysql/roles";
 const router = Router();
 
 //------------ Role Route ------------//
-router.get("/", async (req, res) => {
+router.get("/roles", async (req, res) => {
   try {
     const result = await db.getRoles();
     if (!result) {
@@ -17,7 +17,7 @@ router.get("/", async (req, res) => {
     res.send(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, error));
   }
 });
-router.post("/", async (req, res) => {
+router.post("/roles", async (req, res) => {
   try {
     const { role_title } = req.body;
     const result = await db.createRole(role_title);

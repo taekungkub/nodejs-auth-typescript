@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { ERRORS } from "../helper/Errors";
 import { errorResponse, getTokenBearer, decodedJWT } from "../helper/utils";
-import { UserTy } from "../Types/UserTy";
+import { UserTy } from "../types/UserTy";
 import * as db from "../persistence/mysql/User";
 
 export default function checkRole(roles: Array<string>) {
