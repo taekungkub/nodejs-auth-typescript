@@ -9,7 +9,7 @@ export interface ProductTy {
   discount: number;
   quantity: number;
   category_id: number;
-  image: string;
+  images: string;
 }
 
 export interface ProductCartTy {
@@ -19,7 +19,7 @@ export interface ProductCartTy {
   metaTitle?: string;
   price: number;
   discount: number;
-  image: string;
+  images: string;
   quantity: number;
   category_id: number;
   qty: number;
@@ -33,6 +33,6 @@ export const ProductSchemaBody = Joi.object<ProductTy>({
   price: Joi.number().required(),
   discount: Joi.number().required(),
   quantity: Joi.number().required(),
-  image: Joi.allow(),
+  images: Joi.allow(),
   category_id: Joi.number().required(),
 });

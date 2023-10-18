@@ -1,24 +1,11 @@
 import { Request, Response } from "express";
-import { errorResponse, successResponse, getTokenBearer, signToken, hashPassword, comparePassword, decodedJWT } from "../helper/utils";
-import { ERRORS } from "../helper/Errors";
-import * as db from "../persistence/mysql/Product";
+import { errorResponse, successResponse } from "@/helper/utils";
+import { ERRORS } from "@/helper/Errors";
+import * as db from "@/persistence/mysql/Product";
 import * as fs from "fs";
-import { ProductSchemaBody, ProductTy } from "../types/ProductTy";
-
-interface FileTy {
-  fieldname: string;
-  originalname: string;
-  encoding: string;
-  mimetype: string;
-  destination: string;
-  filename?: string;
-  path: string;
-  size: number;
-}
-
-interface MulterRequest extends Request {
-  file: any;
-}
+import { ProductSchemaBody, ProductTy } from "@/types/ProductTy";
+import { ResultSetHeader } from "mysql2";
+import { productImageUpload, productStorage } from "../middleware/imageUpload";
 
 const dest = "./public/data/uploads";
 
@@ -33,30 +20,38 @@ export async function getAllProduct(req: Request, res: Response) {
 export async function getProductById(req: Request, res: Response) {
   try {
     const { id } = req.params;
-    const result = await db.getProduct(id);
+    const result = (await db.getProduct(id)) as ProductTy;
+
     if (!result) {
       return res.send(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, "Product not found"));
     }
-    res.send(successResponse(result));
+    res.send(
+      successResponse({
+        ...result,
+        images: JSON.parse(String(result.images)),
+      })
+    );
   } catch (error) {
-    res.send(error);
+    res.json(errorResponse(400, ERRORS.TYPE.SERVER_ERROR, error));
   }
 }
+
 export async function createProduct(req: Request, res: Response) {
   try {
     const productData: ProductTy = req.body;
-    const { error }: any = ProductSchemaBody.validate(req.body);
+    const { error } = ProductSchemaBody.validate(req.body);
     if (error) {
-      return res.json(
-        errorResponse(422, ERRORS.TYPE.BAD_REQUEST, {
-          message: ERRORS.TYPE.BAD_REQUEST,
-          data: error.message,
-        })
-      );
+      return res.json(errorResponse(400, ERRORS.TYPE.BAD_REQUEST, error.message));
     }
-    const imageFile: FileTy = (req as MulterRequest).file;
-    const result: any = await db.createProduct(productData, imageFile ? imageFile.filename : undefined);
-    res.send(successResponse(result));
+
+    const files = req.files as Express.Multer.File[];
+    const filenames = files.map((file) => file.filename);
+    const result = (await db.createProduct(productData, JSON.stringify(filenames))) as ResultSetHeader;
+    res.send(
+      successResponse({
+        productId: result.insertId,
+      })
+    );
   } catch (error) {
     console.log(error);
     res.send(error);
@@ -69,24 +64,32 @@ export async function updateProduct(req: Request, res: Response) {
     const productData: ProductTy = req.body;
 
     const { error }: any = ProductSchemaBody.validate(req.body);
+
     if (error) {
-      return res.json(
-        errorResponse(422, ERRORS.TYPE.BAD_REQUEST, {
-          message: ERRORS.TYPE.BAD_REQUEST,
-          data: error.message,
-        })
-      );
+      return res.json(errorResponse(400, ERRORS.TYPE.BAD_REQUEST, error.message));
     }
 
     const product: ProductTy = (await db.getProduct(id)) as ProductTy;
 
-    if (product.image) {
-      fs.unlink(`${dest}/${product.image}`, (err: any) => {});
+    const imagesList = JSON.parse(product.images);
+
+    if (imagesList.length > 0) {
+      imagesList.map((file: string) => {
+        fs.unlink(`${dest}/${file}`, (err) => {});
+      });
     }
 
-    const imageFile: FileTy = (req as MulterRequest).file;
-    const result = await db.updateProduct(productData, imageFile ? imageFile.filename : null, id);
-    res.send(successResponse(result));
+    const files = req.files as Express.Multer.File[];
+    const filenames = files.map((file) => file.filename);
+
+    await db.updateProduct(productData, JSON.stringify(filenames), id);
+    const result = (await db.getProduct(id)) as ProductTy;
+
+    res.send(
+      successResponse({
+        productId: result.id,
+      })
+    );
   } catch (error) {
     res.json(errorResponse(400, ERRORS.TYPE.SERVER_ERROR, error));
   }
@@ -97,12 +100,21 @@ export async function removeProduct(req: Request, res: Response) {
 
     const product: ProductTy = (await db.getProduct(id)) as ProductTy;
 
-    if (product.image) {
-      fs.unlink(`${dest}/${product.image}`, (err: any) => {});
+    const imagesList = JSON.parse(product.images);
+
+    if (imagesList.length > 0) {
+      imagesList.map((file: string) => {
+        fs.unlink(`${dest}/${file}`, (err) => {});
+      });
     }
 
-    const result = await db.removeProduct(id);
-    res.send(successResponse(result));
+    await db.removeProduct(id);
+
+    res.send(
+      successResponse({
+        productId: id,
+      })
+    );
   } catch (error) {
     return res.json(errorResponse(400, ERRORS.TYPE.SERVER_ERROR, error));
   }

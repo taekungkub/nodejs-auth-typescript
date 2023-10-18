@@ -1,5 +1,6 @@
-import { MysqlServices } from "../../config/mysqlService";
-import { ProductTy } from "../../types/ProductTy";
+import { MysqlServices } from "@/config/mysqlService";
+import { ProductTy } from "@/types/ProductTy";
+import { RowDataPacket } from "mysql2";
 
 export const getProducts = async () => {
   try {
@@ -23,7 +24,7 @@ export const getProduct = async (id: string) => {
       `SELECT * FROM tb_product 
         WHERE tb_product.id = ?`,
       [id]
-    )) as Array<any>;
+    )) as RowDataPacket[];
 
     if (rows.length === 0) {
       return Promise.reject("Product not found");
@@ -35,11 +36,11 @@ export const getProduct = async (id: string) => {
   }
 };
 
-export const createProduct = async (item: ProductTy, image?: string) => {
+export const createProduct = async (item: ProductTy, images?: string) => {
   try {
     const [rows] = await MysqlServices.pool.query(
-      "INSERT INTO tb_product ( userId , title, metaTitle, price , discount , quantity ,category_id, image ,createdAt) VALUES (?,?,?,?,?,?,?,?,NOW())",
-      [item.userId, item.title, item.metaTitle, item.price, item.discount, item.quantity, item.category_id, image]
+      "INSERT INTO tb_product ( userId , title, metaTitle, price , discount , quantity ,category_id, images ,createdAt) VALUES (?,?,?,?,?,?,?,?,NOW())",
+      [item.userId, item.title, item.metaTitle, item.price, item.discount, item.quantity, item.category_id, images]
     );
     return Promise.resolve(rows);
   } catch (error) {
@@ -47,9 +48,9 @@ export const createProduct = async (item: ProductTy, image?: string) => {
   }
 };
 
-export const updateProduct = async (item: ProductTy, imageName?: string | null, id?: string | number) => {
+export const updateProduct = async (item: ProductTy, images?: string, id?: string | number) => {
   try {
-    const [rows] = await MysqlServices.pool.query("UPDATE tb_product SET ? , image =? WHERE id = ?", [item, imageName, id]);
+    const [rows] = await MysqlServices.pool.query("UPDATE tb_product SET ? , images =? WHERE id = ?", [item, images, id]);
     if (rows) {
       return Promise.resolve(rows);
     }

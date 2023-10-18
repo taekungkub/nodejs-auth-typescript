@@ -24,6 +24,7 @@ import taskRoutes from "./routes/task";
 //------------ Config -------------------//
 const app: Express = express();
 dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cors());

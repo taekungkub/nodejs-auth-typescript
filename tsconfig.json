@@ -95,10 +95,11 @@
     "baseUrl": ".",
     "paths": {
       "@/config/*": ["src/config/*"],
-      "@/controller/*": ["src/controller/*"],
+      "@/controllers/*": ["src/controllers/*"],
       "@/helper/*": ["src/helper/*"],
       "@/middleware/*": ["src/middleware/*"],
       "@/models/*": ["src/models/*"],
+      "@/persistence/*": ["src/persistence/*"],
       "@/routes/*": ["src/routes/*"],
       "@/types/*": ["src/types/*"],
       "@/docs/*": ["src/docs/*"],

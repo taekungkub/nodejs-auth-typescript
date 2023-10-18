@@ -80,7 +80,7 @@ export const createOrder = async (req: Request, res: Response) => {
         {
           quantity: product.quantity - product.qty,
         } as ProductTy,
-        null,
+
         product.id
       );
     });
