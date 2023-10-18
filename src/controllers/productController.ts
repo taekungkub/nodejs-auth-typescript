@@ -5,9 +5,8 @@ import * as db from "@/persistence/mysql/Product";
 import * as fs from "fs";
 import { ProductSchemaBody, ProductTy } from "@/types/ProductTy";
 import { ResultSetHeader } from "mysql2";
-import { productImageUpload, productStorage } from "../middleware/imageUpload";
-
-const dest = "./public/data/uploads";
+import { productDest, productImageUpload } from "@/middleware/imageUpload";
+import { MulterError } from "multer";
 
 export async function getAllProduct(req: Request, res: Response) {
   const result = await db.getProducts();
@@ -38,9 +37,22 @@ export async function getProductById(req: Request, res: Response) {
 
 export async function createProduct(req: Request, res: Response) {
   try {
+    if (!req.files?.length) {
+      return res.status(400).json(errorResponse(400, ERRORS.TYPE.BAD_REQUEST, "No file uploaded or file rejected."));
+    }
+
     const productData: ProductTy = req.body;
+
     const { error } = ProductSchemaBody.validate(req.body);
+
     if (error) {
+      const files = req.files as Express.Multer.File[];
+      if (files.length) {
+        files.map((file) => {
+          fs.unlink(`${file.path}`, (err) => {});
+        });
+      }
+
       return res.json(errorResponse(400, ERRORS.TYPE.BAD_REQUEST, error.message));
     }
 
@@ -75,7 +87,7 @@ export async function updateProduct(req: Request, res: Response) {
 
     if (imagesList.length > 0) {
       imagesList.map((file: string) => {
-        fs.unlink(`${dest}/${file}`, (err) => {});
+        fs.unlink(`${productDest}/${file}`, (err) => {});
       });
     }
 
@@ -104,7 +116,7 @@ export async function removeProduct(req: Request, res: Response) {
 
     if (imagesList.length > 0) {
       imagesList.map((file: string) => {
-        fs.unlink(`${dest}/${file}`, (err) => {});
+        fs.unlink(`${productDest}/${file}`, (err) => {});
       });
     }
 
