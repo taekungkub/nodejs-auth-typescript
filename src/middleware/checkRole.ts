@@ -1,10 +1,11 @@
 import { NextFunction, Request, Response } from "express";
-import { ERRORS } from "../helper/Errors";
-import { errorResponse, getTokenBearer, decodedJWT } from "../helper/utils";
-import { UserTy } from "../types/UserTy";
-import * as db from "../persistence/mysql/User";
+import { ERRORS } from "@/helper/Errors";
+import { errorResponse, getTokenBearer, decodedJWT } from "@/helper/utils";
+import { UserJwtTy, UserTy } from "@/types/UserTy";
+import * as db from "@/persistence/mysql/User";
+import { RoleTy } from "../config/globalConfig";
 
-export default function checkRole(roles: Array<string>) {
+export default function checkRole(roles: Array<RoleTy>) {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const token = getTokenBearer(req);
@@ -13,10 +14,10 @@ export default function checkRole(roles: Array<string>) {
         return res.json(errorResponse(403, ERRORS.TYPE.SERVER_ERROR, ERRORS.TOKEN_REQUIRED));
       }
 
-      const decoded = (await decodedJWT(token)) as UserTy;
+      const decoded = (await decodedJWT(token)) as UserJwtTy;
       const result = (await db.getUserByEmail(decoded.user_email)) as UserTy;
 
-      if (roles.includes(result.role_title)) {
+      if (roles.includes(result.role_title as RoleTy)) {
         next();
         return;
       }

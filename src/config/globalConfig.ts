@@ -1,11 +1,7 @@
 import * as dotenv from "dotenv";
 dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
 
-export const enumRole = {
-  admin: "admin",
-  staff: "staff",
-  user: "user",
-};
+export type RoleTy = "admin" | "staff" | "user";
 
 export const secretJWT = process.env.SECRET_JWT ?? "foobarsuper";
 export const secretJWTRefresh = process.env.SECRET_JWT_REFRESH ?? "snakelionbird";
