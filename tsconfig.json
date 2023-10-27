@@ -103,6 +103,8 @@
       "@/routes/*": ["src/routes/*"],
       "@/types/*": ["src/types/*"],
       "@/docs/*": ["src/docs/*"],
+      "@/validation/*": ["src/validation/*"],
+
 
     },
   },

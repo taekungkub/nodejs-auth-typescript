@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { RegisterSchemaBody, UserTy } from "../types/UserTy";
+import { UserTy } from "../types/UserTy";
 import { errorResponse, successResponse, hashPassword } from "../helper/utils";
 import { ERRORS } from "../helper/Errors";
 import * as db from "../persistence/mysql/User";
@@ -10,10 +10,10 @@ export const createUser = async (req: Request, res: Response) => {
   try {
     const { user_email, user_password, user_confirm_password, user_displayname, user_tel, is_verify }: UserTy = req.body;
     const { role_id }: any = req.body;
-    const { error }: any = RegisterSchemaBody.validate(req.body);
-    if (error) {
-      return res.json(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, error.message));
-    }
+    // const { error }: any = RegisterSchemaBody.validate(req.body);
+    // if (error) {
+    //   return res.json(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, error.message));
+    // }
 
     let userList = (await db.getUsers()) as Array<any>;
     const existEmail = userList.find((v: any) => v.user_email === user_email);

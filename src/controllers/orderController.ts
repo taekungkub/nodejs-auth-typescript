@@ -1,13 +1,12 @@
 import { Request, Response } from "express";
 import { errorResponse, successResponse } from "../helper/utils";
 import { ERRORS } from "../helper/Errors";
-let validator = require("validator");
 import * as db from "../persistence/mysql/Order";
 import * as dbProduct from "../persistence/mysql/Product";
 
 import { OrderProductTy, OrderTy } from "../types/OrderTy";
-import { RowTy } from "../types/RowTy";
 import { ProductCartTy, ProductTy } from "../types/ProductTy";
+import { RowDataPacket } from "mysql2";
 
 export const getAllOrder = async (req: Request, res: Response) => {
   const result = (await db.getOrders()) as Array<OrderTy>;
@@ -72,7 +71,7 @@ export const createOrder = async (req: Request, res: Response) => {
     const existStock = checkedStocks.find((v) => v === true);
     if (existStock) return res.json(errorResponse(400, ERRORS.TYPE.SERVER_ERROR, "สินค้ามากกว่าจำนวนในสต้อก"));
 
-    const result = (await db.createOrder(order)) as RowTy;
+    const result = (await db.createOrder(order)) as RowDataPacket;
     const order_id = result.insertId;
     let promises = order_products.map(async (product: ProductCartTy) => {
       await db.createOrderProduct(order_id, product.id, product.qty);

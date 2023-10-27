@@ -32,7 +32,10 @@
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^4.6.0",
     "uuid": "^9.0.0",
-    "validator": "^13.7.0"
+    "validate-image-type": "^3.0.0",
+    "validator": "^13.7.0",
+    "zod": "^3.22.4",
+    "zod-validation-error": "^2.0.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",

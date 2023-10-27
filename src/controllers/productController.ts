@@ -3,10 +3,9 @@ import { errorResponse, successResponse } from "@/helper/utils";
 import { ERRORS } from "@/helper/Errors";
 import * as db from "@/persistence/mysql/Product";
 import * as fs from "fs";
-import { ProductSchemaBody, ProductTy } from "@/types/ProductTy";
+import { ProductTy } from "@/types/ProductTy";
 import { ResultSetHeader } from "mysql2";
-import { productDest, productImageUpload } from "@/middleware/imageUpload";
-import { MulterError } from "multer";
+import { productDest } from "@/middleware/imageUpload";
 
 export async function getAllProduct(req: Request, res: Response) {
   const result = await db.getProducts();
@@ -43,18 +42,20 @@ export async function createProduct(req: Request, res: Response) {
 
     const productData: ProductTy = req.body;
 
-    const { error } = ProductSchemaBody.validate(req.body);
+    // const { error } = ProductSchemaBody.validate(req.body);
 
-    if (error) {
-      const files = req.files as Express.Multer.File[];
-      if (files.length) {
-        files.map((file) => {
-          fs.unlink(`${file.path}`, (err) => {});
-        });
-      }
+    // if (error) {
+    //   const files = req.files as Express.Multer.File[];
+    //   if (files.length) {
+    //     files.map((file) => {
+    //       fs.unlink(`${file.path}`, (err) => {});
+    //     });
+    //   }
 
-      return res.json(errorResponse(400, ERRORS.TYPE.BAD_REQUEST, error.message));
-    }
+    //   return res.json(errorResponse(400, ERRORS.TYPE.BAD_REQUEST, error.message));
+    // }
+
+    //wait make for save image product
 
     const files = req.files as Express.Multer.File[];
     const filenames = files.map((file) => file.filename);
@@ -75,11 +76,11 @@ export async function updateProduct(req: Request, res: Response) {
 
     const productData: ProductTy = req.body;
 
-    const { error }: any = ProductSchemaBody.validate(req.body);
+    // const { error }: any = ProductSchemaBody.validate(req.body);
 
-    if (error) {
-      return res.json(errorResponse(400, ERRORS.TYPE.BAD_REQUEST, error.message));
-    }
+    // if (error) {
+    //   return res.json(errorResponse(400, ERRORS.TYPE.BAD_REQUEST, error.message));
+    // }
 
     const product: ProductTy = (await db.getProduct(id)) as ProductTy;
 

@@ -15,15 +15,17 @@ export const productImageUpload = multer({
       cb(new Error("file is not allowed"));
     }
   },
-  storage: multer.diskStorage({
-    destination: function (req, file, cb) {
-      cb(null, productDest);
-    },
-    filename: function (req, file, cb) {
-      const timestamp = Date.now();
-      const ext = file.originalname.split(".").pop();
-      const customFilename = `file_${timestamp}.${ext}`;
-      cb(null, customFilename);
-    },
-  }),
+  // ไปบันทึกเอาใน controller
+
+  // storage: multer.diskStorage({
+  //   destination: function (req, file, cb) {
+  //     cb(null, productDest);
+  //   },
+  //   filename: function (req, file, cb) {
+  //     const timestamp = Date.now();
+  //     const ext = file.originalname.split(".").pop();
+  //     const customFilename = `file_${timestamp}.${ext}`;
+  //     cb(null, customFilename);
+  //   },
+  // }),
 });

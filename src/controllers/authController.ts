@@ -1,12 +1,5 @@
 import { Request, Response } from "express";
-import {
-  ChangepasswordSchemaBody,
-  ChangepasswordWithCodeSchema,
-  LoginSchemaBody,
-  RegisterSchemaBody,
-  UserJwtTy,
-  UserTy,
-} from "@/types/UserTy";
+import { UserJwtTy, UserTy } from "@/types/UserTy";
 import {
   errorResponse,
   successResponse,
@@ -26,12 +19,6 @@ import * as log from "../persistence/mysql/Log";
 export const login = async (req: Request, res: Response) => {
   try {
     const { user_email, user_password }: UserTy = req.body;
-
-    const { error } = LoginSchemaBody.validate(req.body);
-
-    if (error) {
-      return res.json(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, error.message));
-    }
 
     const userData: UserTy = await test.getUserByEmail(user_email);
 
@@ -64,13 +51,9 @@ export const register = async (req: Request, res: Response) => {
   try {
     const { user_email, user_password, user_confirm_password, user_displayname, user_tel }: UserTy = req.body;
 
-    const { error } = RegisterSchemaBody.validate(req.body);
-    if (error) {
-      return res.json(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, error.message));
-    }
-    let userList = (await test.getUsers()) as Array<any>;
+    let userList = (await test.getUsers()) as Array<UserTy>;
 
-    const existEmail = userList.find((v: UserTy) => v.user_email === user_email);
+    const existEmail = userList.find((v) => v.user_email === user_email);
     if (existEmail) return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.EMAIL_ALREADY_EXISTS));
 
     const passwordHash = await hashPassword(user_password);
@@ -173,12 +156,6 @@ export const changePassword = async (req: Request, res: Response) => {
   try {
     const { user_password, user_confirm_password, current_password } = req.body;
 
-    const { error }: any = ChangepasswordSchemaBody.validate(req.body);
-
-    if (error) {
-      return res.json(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, error.message));
-    }
-
     const { id, user_email } = req.user as UserTy;
 
     const userData: UserTy = await test.getUserByEmail(user_email);
@@ -232,17 +209,6 @@ export const resetPassword = async (req: Request, res: Response) => {
 export const changePasswordWithCode = async (req: Request, res: Response) => {
   try {
     const code = req.params.code;
-    const { user_password, user_confirm_password }: UserTy = req.body;
-
-    if (!code) {
-      return res.json(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, ERRORS.PASSWORD_RESET_LINK_INVALID));
-    }
-
-    const { error } = ChangepasswordWithCodeSchema.validate({ user_password, user_confirm_password });
-
-    if (error) {
-      return res.json(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, error.message));
-    }
 
     const { user_email } = (await decodedJWT(code)) as UserJwtTy;
 
