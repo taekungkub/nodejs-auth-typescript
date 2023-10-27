@@ -20,6 +20,7 @@ export const productSchema = z.object({
     }
     return false;
   }, "Images is required."),
+  // ไป filter เอาใน  multer
   // .refine((files) => files?.[0]?.size <= MAX_FILE_SIZE, `Max file size is 5MB.`)
   // .refine((files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type), ".jpg, .jpeg, .png and .webp files are accepted."),
 });

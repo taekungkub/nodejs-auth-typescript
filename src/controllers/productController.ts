@@ -6,6 +6,7 @@ import * as fs from "fs";
 import { ProductTy } from "@/types/ProductTy";
 import { ResultSetHeader } from "mysql2";
 import { productDest } from "@/middleware/imageUpload";
+import sharp from "sharp";
 
 export async function getAllProduct(req: Request, res: Response) {
   const result = await db.getProducts();
@@ -41,25 +42,20 @@ export async function createProduct(req: Request, res: Response) {
     }
 
     const productData: ProductTy = req.body;
+    const productPics = req.files as Express.Multer.File[];
 
-    // const { error } = ProductSchemaBody.validate(req.body);
+    let profilePicDestinationPath: Array<string> = [];
 
-    // if (error) {
-    //   const files = req.files as Express.Multer.File[];
-    //   if (files.length) {
-    //     files.map((file) => {
-    //       fs.unlink(`${file.path}`, (err) => {});
-    //     });
-    //   }
+    productPics.map(async (file, i) => {
+      const timestamp = Date.now();
+      const ext = file.originalname.split(".").pop();
+      const fileName = `file_${timestamp}_${i}.${ext}`;
+      const path = `${productDest}/${fileName}`;
+      profilePicDestinationPath.push(fileName);
+      await sharp(file.buffer).toFile(path);
+    });
 
-    //   return res.json(errorResponse(400, ERRORS.TYPE.BAD_REQUEST, error.message));
-    // }
-
-    //wait make for save image product
-
-    const files = req.files as Express.Multer.File[];
-    const filenames = files.map((file) => file.filename);
-    const result = (await db.createProduct(productData, JSON.stringify(filenames))) as ResultSetHeader;
+    const result = (await db.createProduct(productData, JSON.stringify(profilePicDestinationPath))) as ResultSetHeader;
     res.send(
       successResponse({
         productId: result.insertId,
@@ -75,27 +71,28 @@ export async function updateProduct(req: Request, res: Response) {
     const { id } = req.params;
 
     const productData: ProductTy = req.body;
-
-    // const { error }: any = ProductSchemaBody.validate(req.body);
-
-    // if (error) {
-    //   return res.json(errorResponse(400, ERRORS.TYPE.BAD_REQUEST, error.message));
-    // }
-
     const product: ProductTy = (await db.getProduct(id)) as ProductTy;
+    const productPics = req.files as Express.Multer.File[];
+    let profilePicDestinationPath: Array<string> = [];
 
-    const imagesList = JSON.parse(product.images);
+    if (productPics.length) {
+      const imagesList = JSON.parse(product.images);
 
-    if (imagesList.length > 0) {
       imagesList.map((file: string) => {
         fs.unlink(`${productDest}/${file}`, (err) => {});
       });
+
+      productPics.map(async (file, i) => {
+        const timestamp = Date.now();
+        const ext = file.originalname.split(".").pop();
+        const fileName = `file_${timestamp}_${i}.${ext}`;
+        const path = `${productDest}/${fileName}`;
+        profilePicDestinationPath.push(fileName);
+        await sharp(file.buffer).toFile(path);
+      });
     }
 
-    const files = req.files as Express.Multer.File[];
-    const filenames = files.map((file) => file.filename);
-
-    await db.updateProduct(productData, JSON.stringify(filenames), id);
+    await db.updateProduct(productData, JSON.stringify(profilePicDestinationPath), id);
     const result = (await db.getProduct(id)) as ProductTy;
 
     res.send(
