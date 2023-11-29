@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
-import { UserJwtTy, UserTy } from "@/types/UserTy";
+import { UserTy } from "@/types/UserTy";
+import { ERRORS } from "../helper/Errors";
 import {
   errorResponse,
   successResponse,
@@ -10,17 +11,16 @@ import {
   jwtGenerate,
   jwtRefreshTokenGenerate,
 } from "../helper/utils";
-import { ERRORS } from "../helper/Errors";
+import onSendVerifyToEmail from "../helper/sendMail";
 let validator = require("validator");
 import * as test from "../persistence/mysql/User";
-import onSendVerifyToEmail from "../helper/sendMail";
 import * as log from "../persistence/mysql/Log";
 
 export const login = async (req: Request, res: Response) => {
   try {
     const { user_email, user_password }: UserTy = req.body;
 
-    const userData: UserTy = await test.getUserByEmail(user_email);
+    const userData = await test.getUserByEmail(user_email);
 
     const isComparePassword = await comparePassword(user_password, userData.user_password);
 
@@ -51,9 +51,9 @@ export const register = async (req: Request, res: Response) => {
   try {
     const { user_email, user_password, user_confirm_password, user_displayname, user_tel }: UserTy = req.body;
 
-    let userList = (await test.getUsers()) as Array<UserTy>;
+    let users = await test.getUsers();
 
-    const existEmail = userList.find((v) => v.user_email === user_email);
+    const existEmail = users.find((v) => v.user_email === user_email);
     if (existEmail) return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.EMAIL_ALREADY_EXISTS));
 
     const passwordHash = await hashPassword(user_password);
@@ -81,9 +81,9 @@ export const activeUser = async (req: Request, res: Response) => {
       return res.json(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, ERRORS.CANT_VERIFY_ACCOUNT));
     }
 
-    const { user_email } = (await decodedJWT(code)) as UserJwtTy;
+    const { user_email } = await decodedJWT(code);
 
-    let userData: UserTy = await test.getUserByEmail(user_email);
+    let userData = await test.getUserByEmail(user_email);
 
     if (userData.is_verify) {
       return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.EMAIL_IS_VERIFY));
@@ -114,20 +114,20 @@ export const resendVerify = async (req: Request, res: Response) => {
     if (!validator.isEmail(user_email)) {
       return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.EMAIL_INVALID));
     }
-    const userData: UserTy = await test.getUserByEmail(user_email);
+    const user = await test.getUserByEmail(user_email);
 
-    if (!userData) {
+    if (!user) {
       return res.json(
         errorResponse(404, ERRORS.TYPE.BAD_REQUEST, "We were unable to find a user with that email. Make sure your Email is correct!")
       );
     }
 
-    if (userData.is_verify) {
+    if (user.is_verify) {
       return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, "This email has been verify."));
     }
     const tokenForVerify = signToken({ user_email });
 
-    await log.createLog(userData.id, "USER IS RESEND VERIFY");
+    await log.createLog(user.id, "USER IS RESEND VERIFY");
     await onSendVerifyToEmail(user_email, tokenForVerify);
 
     res.json(
@@ -146,6 +146,7 @@ export const userProfile = async (req: Request, res: Response) => {
     const user = req.user as UserTy;
 
     const result = await test.getUserByEmail(user.user_email);
+
     res.json(successResponse(result));
   } catch (error) {
     return res.json(errorResponse(404, ERRORS.TYPE.SERVER_ERROR, error));
@@ -158,9 +159,9 @@ export const changePassword = async (req: Request, res: Response) => {
 
     const { id, user_email } = req.user as UserTy;
 
-    const userData: UserTy = await test.getUserByEmail(user_email);
+    const user = await test.getUserByEmail(user_email);
 
-    const isComparePassword = await comparePassword(current_password, userData.user_password);
+    const isComparePassword = await comparePassword(current_password, user.user_password);
 
     if (!isComparePassword) {
       return res.json(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, "Current password is not correct"));
@@ -191,7 +192,7 @@ export const resetPassword = async (req: Request, res: Response) => {
     if (!validator.isEmail(user_email)) {
       return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.EMAIL_INVALID));
     }
-    const user: UserTy = await test.getUserByEmail(user_email);
+    const user = await test.getUserByEmail(user_email);
     const tokenForReset = signToken({ user_email });
     await test.updateResetPasswordToken(tokenForReset, user.user_email);
     await log.createLog(user.id, "USER REQUEST RESET PASSWORD");
@@ -210,15 +211,15 @@ export const changePasswordWithCode = async (req: Request, res: Response) => {
   try {
     const code = req.params.code;
 
-    const { user_email } = (await decodedJWT(code)) as UserJwtTy;
+    const { user_email } = await decodedJWT(code);
 
-    let userData: UserTy = await test.getUserByEmail(user_email);
+    let user = await test.getUserByEmail(user_email);
 
-    if (!userData.reset_password_token) {
+    if (!user.reset_password_token) {
       return res.json(errorResponse(404, ERRORS.TYPE.BAD_REQUEST, ERRORS.LINK_HAS_BEEN_DESTROYED));
     }
 
-    await log.createLog(userData.id, "USER CHANGE PASSWORD WITH CODE");
+    await log.createLog(user.id, "USER CHANGE PASSWORD WITH CODE");
     await test.removeResetPasswordToken(user_email);
     res.json(
       successResponse({
@@ -230,11 +231,12 @@ export const changePasswordWithCode = async (req: Request, res: Response) => {
   }
 };
 
-export const changeProfile = async (req: any, res: Response) => {
+export const changeProfile = async (req: Request, res: Response) => {
   try {
-    const userData: UserTy = req.body;
-    const { id }: UserTy = req.user;
-    await test.updateProfile(id, userData);
+    const user = req.body as UserTy;
+    const { id } = req.user as UserTy;
+
+    await test.updateProfile(id, user);
     await log.createLog(id, "USER UPDATE PROFILE");
     res.json(
       successResponse({
@@ -260,9 +262,9 @@ export const refreshToken = async (req: Request, res: Response) => {
   try {
     const { user_email } = req.user as UserTy;
 
-    const userData: UserTy = await test.getUserByEmail(user_email);
+    const user = await test.getUserByEmail(user_email);
 
-    const access_token = jwtGenerate(userData);
+    const access_token = jwtGenerate(user);
 
     res.send(
       successResponse({

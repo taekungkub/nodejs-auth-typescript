@@ -1,17 +1,18 @@
+import { RowDataPacket, OkPacket, ResultSetHeader } from "mysql2";
 import { MysqlServices } from "../../config/mysqlService";
 import { UserTy } from "../../types/UserTy";
 const { v4: uuidv4 } = require("uuid");
 
 export const createUser = async (user: UserTy) => {
   try {
-    const [rows] = await MysqlServices.pool.query(
+    const [rows] = await MysqlServices.pool.query<OkPacket>(
       "INSERT INTO tb_user ( user_email, user_password, user_displayname , user_tel  , user_created) VALUES (?,?,?,?,NOW())",
       [user.user_email, user.user_password_hash, user.user_displayname, user.user_tel]
     );
     if (!rows) {
       return Promise.reject("create user error");
     }
-    return Promise.resolve(rows);
+    return Promise.resolve<OkPacket>(rows);
   } catch (error) {
     return Promise.reject(error);
   }
@@ -20,7 +21,7 @@ export const createUser = async (user: UserTy) => {
 export const getUserByEmail = async (email: string) => {
   try {
     // const [rows] = await conn.query("SELECT * FROM tb_user WHERE user_email = ?", [email]);
-    const [rows] = (await MysqlServices.pool.query(
+    const [rows] = await MysqlServices.pool.query<RowDataPacket[]>(
       `
       SELECT *
       FROM tb_user
@@ -31,13 +32,13 @@ export const getUserByEmail = async (email: string) => {
       WHERE user_email = ?
       `,
       [email]
-    )) as Array<any>;
+    );
 
     if (rows.length === 0) {
       return Promise.reject("User not found");
     }
 
-    return Promise.resolve(rows[0]);
+    return Promise.resolve<UserTy>(rows[0] as UserTy);
   } catch (error) {
     return Promise.reject(error);
   }
@@ -45,7 +46,7 @@ export const getUserByEmail = async (email: string) => {
 
 export const getUsers = async () => {
   try {
-    const rows = await MysqlServices.pool.query(`
+    const rows = await MysqlServices.pool.query<RowDataPacket[0]>(`
       SELECT * FROM tb_user 
       LEFT OUTER JOIN tb_role_user
       ON tb_user.id = tb_role_user.user_id
@@ -55,7 +56,7 @@ export const getUsers = async () => {
     if (!rows) {
       return Promise.reject("Users not found");
     }
-    return Promise.resolve(rows[0]);
+    return Promise.resolve<UserTy[]>(rows[0]);
   } catch (error) {
     return Promise.reject(error);
   }
@@ -118,27 +119,25 @@ export const updateProfile = async (id: string, userData: UserTy) => {
 
 export const updateUser = async (userData: UserTy, id: string) => {
   try {
-    const rows = (await MysqlServices.pool.query("UPDATE tb_user SET user_displayname = ?, user_tel = ?, is_verify = ? WHERE id = ?", [
-      userData.user_displayname,
-      userData.user_tel,
-      userData.is_verify,
-      id,
-    ])) as Array<any>;
+    const [rows] = await MysqlServices.pool.query<OkPacket>(
+      "UPDATE tb_user SET user_displayname = ?, user_tel = ?, is_verify = ? WHERE id = ?",
+      [userData.user_displayname, userData.user_tel, userData.is_verify, id]
+    );
 
-    return Promise.resolve(rows[0]);
+    return Promise.resolve<OkPacket>(rows);
   } catch (error) {
     return Promise.reject(error);
   }
 };
 export const removeUser = async (id: String) => {
   try {
-    const [rows] = (await MysqlServices.pool.query("DELETE FROM tb_user  WHERE id = ?", [id])) as Array<any>;
+    const [rows] = await MysqlServices.pool.query<OkPacket>("DELETE FROM tb_user  WHERE id = ?", [id]);
 
     if (!rows) {
       return Promise.reject("Error delete user");
     }
 
-    return Promise.resolve(rows);
+    return Promise.resolve<OkPacket>(rows);
   } catch (error) {
     return Promise.reject(error);
   }
@@ -168,7 +167,7 @@ export const updateRoleUser = async (roleId: String, userId: string) => {
 
 export const getUserById = async (id: string) => {
   try {
-    const [rows] = (await MysqlServices.pool.query(
+    const [rows] = await MysqlServices.pool.query<RowDataPacket[0]>(
       `
       SELECT *
       FROM tb_user
@@ -179,13 +178,13 @@ export const getUserById = async (id: string) => {
       WHERE id = ?
       `,
       [id]
-    )) as Array<any>;
+    );
 
     if (rows.length === 0) {
       return Promise.reject("User not found");
     }
 
-    return Promise.resolve(rows[0]);
+    return Promise.resolve<UserTy>(rows[0]);
   } catch (error) {
     return Promise.reject(error);
   }

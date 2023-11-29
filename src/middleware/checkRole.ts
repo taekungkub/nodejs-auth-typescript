@@ -15,9 +15,9 @@ export default function checkRole(roles: Array<RoleTy>) {
       }
 
       const decoded = (await decodedJWT(token)) as UserJwtTy;
-      const result = (await db.getUserByEmail(decoded.user_email)) as UserTy;
+      const user = await db.getUserByEmail(decoded.user_email);
 
-      if (roles.includes(result.role_title as RoleTy)) {
+      if (roles.includes(user.role_title as RoleTy)) {
         next();
         return;
       }

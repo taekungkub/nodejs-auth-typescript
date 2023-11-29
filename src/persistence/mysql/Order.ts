@@ -1,35 +1,34 @@
+import { OkPacket, RowDataPacket } from "mysql2";
 import { MysqlServices } from "../../config/mysqlService";
 import { OrderProductTy, OrderTy } from "../../types/OrderTy";
 
 export const getOrders = async () => {
   try {
-    const [rows] = await MysqlServices.pool.query(`
+    const rows = await MysqlServices.pool.query<RowDataPacket[0]>(`
       SELECT * FROM tb_order 
     `);
 
-    if (rows) {
-      return Promise.resolve(rows);
-    }
+    return Promise.resolve<OrderTy[]>(rows[0]);
   } catch (error) {
     return Promise.reject(error);
   }
 };
 
-export const getOrder = async (id: string) => {
+export const getOrderById = async (id: string) => {
   try {
-    const [rows] = (await MysqlServices.pool.query(
+    const [rows] = await MysqlServices.pool.query<RowDataPacket[0]>(
       `
       SELECT * FROM tb_order
       WHERE tb_order.id = ?
       `,
       [id]
-    )) as Array<any>;
+    );
 
     if (rows.length === 0) {
       return Promise.reject("Order not found");
     }
 
-    return Promise.resolve(rows[0]);
+    return Promise.resolve<OrderTy>(rows[0]);
   } catch (error) {
     return Promise.reject(error);
   }
@@ -37,7 +36,7 @@ export const getOrder = async (id: string) => {
 
 export const getOrderProduct = async (orderId: string | number) => {
   try {
-    const [rows] = (await MysqlServices.pool.query(
+    const [rows] = await MysqlServices.pool.query<RowDataPacket[0]>(
       `
       SELECT op.product_id, op.quantity, p.title, p.price
       FROM tb_order_product op
@@ -46,7 +45,7 @@ export const getOrderProduct = async (orderId: string | number) => {
       WHERE op.order_id = ?
       `,
       [orderId]
-    )) as Array<any>;
+    );
 
     if (rows.length === 0) {
       return Promise.reject("Order Product not found");
@@ -80,10 +79,11 @@ export const getOrderUser = async (userId: string | number) => {
 
 export const createOrder = async (item: OrderTy) => {
   try {
-    const [rows] = (await MysqlServices.pool.query(
+    const [rows] = await MysqlServices.pool.query<OkPacket>(
       "INSERT INTO tb_order ( user_id , status, payment, total,createdAt) VALUES (?,?,?,?,NOW())",
       [item.user_id, item.status, item.payment, item.total]
-    )) as Array<any>;
+    );
+
     return Promise.resolve(rows);
   } catch (error) {
     return Promise.reject(error);
@@ -92,7 +92,7 @@ export const createOrder = async (item: OrderTy) => {
 
 export const createOrderProduct = async (orderId: string | number, productId: string | number, qty: number) => {
   try {
-    const [rows] = await MysqlServices.pool.query(
+    const [rows] = await MysqlServices.pool.query<OkPacket>(
       "INSERT INTO tb_order_product ( order_id , product_id ,  quantity , createdAt ) VALUES (?,?,?,NOW())",
       [orderId, productId, qty]
     );

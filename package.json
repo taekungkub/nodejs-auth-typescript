@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "NODE_ENV=development nodemon",
     "build": "NODE_ENV=production tsc --project ./",
-    "dev:production": "NODE_ENV=production nodemon ./dist/app.js"
+    "dev:production": "NODE_ENV=production nodemon ./dist/app.js",
+    "start": "npm run build && node dist/app.js"
   },
   "keywords": [],
   "author": "",

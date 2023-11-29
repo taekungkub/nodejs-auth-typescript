@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
 import { secretJWT, secretJWTRefresh } from "../config/globalConfig";
+import { UserJwtTy } from "../types/UserTy";
 
 const saltRounds = 10;
 
@@ -46,7 +47,7 @@ export function signToken(payload: any) {
 }
 
 export function decodedJWT(token: any) {
-  return new Promise((resolve, reject) => {
+  return new Promise<UserJwtTy>((resolve, reject) => {
     jwt.verify(token, secretJWT, (err: any, decoded: any) => {
       if (err) {
         reject(err.message ? err.message : err);

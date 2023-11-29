@@ -9,9 +9,15 @@ import { ProductCartTy, ProductTy } from "../types/ProductTy";
 import { RowDataPacket } from "mysql2";
 
 export const getAllOrder = async (req: Request, res: Response) => {
-  const result = (await db.getOrders()) as Array<OrderTy>;
+  const result = await db.getOrders();
 
-  const promises = result.map(async (order: OrderTy) => {
+  if (!result.length) {
+    return res.status(404).json({
+      description: "Orders not found",
+    });
+  }
+
+  const promises = result.map(async (order) => {
     const products = await db.getOrderProduct(order.id);
     return Object.assign(
       {
@@ -28,9 +34,9 @@ export const getAllOrder = async (req: Request, res: Response) => {
 export const getOrderById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const result = (await db.getOrder(id)) as OrderTy;
-    const products = await db.getOrderProduct(result.id);
-    res.json(successResponse({ ...result, products: products }));
+    const order = await db.getOrderById(id);
+    const products = await db.getOrderProduct(order.id);
+    res.json(successResponse({ ...order, products: products }));
   } catch (error) {
     console.log(error);
   }
@@ -71,7 +77,7 @@ export const createOrder = async (req: Request, res: Response) => {
     const existStock = checkedStocks.find((v) => v === true);
     if (existStock) return res.json(errorResponse(400, ERRORS.TYPE.SERVER_ERROR, "สินค้ามากกว่าจำนวนในสต้อก"));
 
-    const result = (await db.createOrder(order)) as RowDataPacket;
+    const result = await db.createOrder(order);
     const order_id = result.insertId;
     let promises = order_products.map(async (product: ProductCartTy) => {
       await db.createOrderProduct(order_id, product.id, product.qty);
@@ -103,8 +109,8 @@ export const updateOrder = async (req: Request, res: Response) => {
 export const removeOrder = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const order: OrderTy = req.body.order;
-    let promises = order.products.map(async (product: OrderProductTy) => {
+    const order = req.body.order as OrderTy;
+    let promises = order.products.map(async (product) => {
       await db.updateQuantity(product.product_id, product.quantity);
     });
     await Promise.all(promises);
