@@ -20,8 +20,7 @@ export const createUser = async (user: UserTy) => {
 
 export const getUserByEmail = async (email: string) => {
   try {
-    // const [rows] = await conn.query("SELECT * FROM tb_user WHERE user_email = ?", [email]);
-    const [rows] = await MysqlServices.pool.query<RowDataPacket[]>(
+    const [rows] = await MysqlServices.pool.query<RowDataPacket[0]>(
       `
       SELECT *
       FROM tb_user
@@ -38,7 +37,7 @@ export const getUserByEmail = async (email: string) => {
       return Promise.reject("User not found");
     }
 
-    return Promise.resolve<UserTy>(rows[0] as UserTy);
+    return Promise.resolve<UserTy>(rows[0]);
   } catch (error) {
     return Promise.reject(error);
   }
@@ -46,7 +45,7 @@ export const getUserByEmail = async (email: string) => {
 
 export const getUsers = async () => {
   try {
-    const rows = await MysqlServices.pool.query<RowDataPacket[0]>(`
+    const [rows] = await MysqlServices.pool.query<RowDataPacket[0]>(`
       SELECT * FROM tb_user 
       LEFT OUTER JOIN tb_role_user
       ON tb_user.id = tb_role_user.user_id
@@ -56,7 +55,7 @@ export const getUsers = async () => {
     if (!rows) {
       return Promise.reject("Users not found");
     }
-    return Promise.resolve<UserTy[]>(rows[0]);
+    return Promise.resolve<UserTy[]>(rows);
   } catch (error) {
     return Promise.reject(error);
   }
@@ -192,7 +191,7 @@ export const getUserById = async (id: string) => {
 
 export const getUserLog = async (id: string) => {
   try {
-    const [rows] = (await MysqlServices.pool.query("SELECT * FROM tb_user_activity_log WHERE user_id = ?", [id])) as Array<any>;
+    const [rows] = await MysqlServices.pool.query<RowDataPacket[0]>("SELECT * FROM tb_user_activity_log WHERE user_id = ?", [id]);
 
     if (rows.length === 0) {
       return Promise.reject("Logs not found");

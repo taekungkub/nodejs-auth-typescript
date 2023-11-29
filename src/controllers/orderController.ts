@@ -70,7 +70,7 @@ export const createOrder = async (req: Request, res: Response) => {
     const order_products = req.body.order_product as Array<ProductCartTy>;
 
     const promisess = order_products.map(async (v: ProductCartTy) => {
-      const product = (await dbProduct.getProduct(v.id)) as ProductTy;
+      const product = (await dbProduct.getProductById(v.id)) as ProductTy;
       return v.qty > product.quantity;
     });
     const checkedStocks = await Promise.all(promisess);

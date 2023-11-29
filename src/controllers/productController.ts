@@ -1,33 +1,35 @@
 import { Request, Response } from "express";
 import { errorResponse, successResponse } from "@/helper/utils";
 import { ERRORS } from "@/helper/Errors";
+import { ProductTy } from "@/types/ProductTy";
+import { productDest } from "@/middleware/imageUpload";
 import * as db from "@/persistence/mysql/Product";
 import * as fs from "fs";
-import { ProductTy } from "@/types/ProductTy";
-import { ResultSetHeader } from "mysql2";
-import { productDest } from "@/middleware/imageUpload";
 import sharp from "sharp";
 
 export async function getAllProduct(req: Request, res: Response) {
-  const result = await db.getProducts();
-  if (!result) {
-    return res.send(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, "Product not found"));
-  }
-  res.send(successResponse(result));
+  try {
+    const products = await db.getProducts();
+
+    if (!products) {
+      return res.send(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, "Product not found"));
+    }
+    res.send(successResponse(products));
+  } catch (error) {}
 }
 
 export async function getProductById(req: Request, res: Response) {
   try {
     const { id } = req.params;
-    const result = (await db.getProduct(id)) as ProductTy;
+    const product = await db.getProductById(id);
 
-    if (!result) {
+    if (!product) {
       return res.send(errorResponse(404, ERRORS.TYPE.RESOURCE_NOT_FOUND, "Product not found"));
     }
     res.send(
       successResponse({
-        ...result,
-        images: JSON.parse(String(result.images)),
+        ...product,
+        images: JSON.parse(String(product.images)),
       })
     );
   } catch (error) {
@@ -55,7 +57,7 @@ export async function createProduct(req: Request, res: Response) {
       await sharp(file.buffer).toFile(path);
     });
 
-    const result = (await db.createProduct(productData, JSON.stringify(profilePicDestinationPath))) as ResultSetHeader;
+    const result = await db.createProduct(productData, JSON.stringify(profilePicDestinationPath));
     res.send(
       successResponse({
         productId: result.insertId,
@@ -71,7 +73,7 @@ export async function updateProduct(req: Request, res: Response) {
     const { id } = req.params;
 
     const productData: ProductTy = req.body;
-    const product: ProductTy = (await db.getProduct(id)) as ProductTy;
+    const product = await db.getProductById(id);
     const productPics = req.files as Express.Multer.File[];
     let profilePicDestinationPath: Array<string> = [];
 
@@ -93,11 +95,10 @@ export async function updateProduct(req: Request, res: Response) {
     }
 
     await db.updateProduct(productData, JSON.stringify(profilePicDestinationPath), id);
-    const result = (await db.getProduct(id)) as ProductTy;
 
     res.send(
       successResponse({
-        productId: result.id,
+        productId: product.id,
       })
     );
   } catch (error) {
@@ -108,7 +109,7 @@ export async function removeProduct(req: Request, res: Response) {
   try {
     const id = req.params.id;
 
-    const product: ProductTy = (await db.getProduct(id)) as ProductTy;
+    const product = await db.getProductById(id);
 
     const imagesList = JSON.parse(product.images);
 
