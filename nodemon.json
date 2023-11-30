@@ -1,6 +1,6 @@
 {
   "watch": ["src"],
-  "ext": "ts,json,yaml",
+  "ext": "js,ts,json,yaml",
   "ignore": ["src/**/*.spec.ts"],
-  "exec": "ts-node ./src/app.ts"
+  "exec": "ts-node -r tsconfig-paths/register --transpile-only src/app.ts"
 }

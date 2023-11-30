@@ -5,9 +5,9 @@
   "main": "app.js",
   "scripts": {
     "dev": "NODE_ENV=development nodemon",
-    "build": "NODE_ENV=production tsc --project ./",
+    "build": "tsc && tsc-alias",
     "dev:production": "NODE_ENV=production nodemon ./dist/app.js",
-    "start": "npm run build && node dist/app.js"
+    "start": "npm run build && cross-env NODE_ENV=production node dist/app.js"
   },
   "keywords": [],
   "author": "",
@@ -54,8 +54,10 @@
     "@types/swagger-ui-express": "^4.1.3",
     "@types/yamljs": "^0.2.31",
     "concurrently": "^7.1.0",
+    "cross-env": "^7.0.3",
     "nodemon": "^2.0.16",
     "ts-node": "^10.7.0",
+    "tsc-alias": "^1.8.8",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^4.6.4"
   }
