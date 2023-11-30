@@ -1,0 +1,40 @@
+version: "3.7"
+
+services:
+  mysql:
+    image: mysql:latest
+    networks:
+      - my-network
+    environment:
+      MYSQL_ROOT_PASSWORD: my-secret-pw
+    ports:
+      - "4000:3306"
+    volumes:
+      - "./data/database:/var/lib/mysql"
+
+  phpmyadmin:
+    image: phpmyadmin
+    networks:
+      - my-network
+    ports:
+      - "9000:80"
+    environment:
+      PMA_HOST: mysql
+    depends_on:
+      - mysql
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - 8000:8000
+    depends_on:
+      - mysql
+    networks:
+      - my-network
+
+networks:
+  my-network:
