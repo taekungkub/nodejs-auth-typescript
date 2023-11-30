@@ -1,7 +1,7 @@
 export default {
   host: "localhost",
   user: "root",
-  database: "test",
-  password: "1234",
+  database: "mydb",
+  password: "my-secret-pw",
   port: 4000,
 };

@@ -22,6 +22,11 @@ services:
       PMA_HOST: mysql
     depends_on:
       - mysql
+  redis:
+    image: redis:6.2.10-alpine
+    restart: always
+    ports:
+      - 6379:6379
   api:
     build:
       context: .
@@ -35,6 +40,5 @@ services:
       - mysql
     networks:
       - my-network
-
 networks:
   my-network:
