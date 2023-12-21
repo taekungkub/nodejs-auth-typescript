@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "dev": "NODE_ENV=development nodemon",
+    "dev": "nodemon",
     "build": "tsc && tsc-alias",
     "dev:production": "NODE_ENV=production nodemon ./dist/app.js",
     "start": "npm run build && cross-env NODE_ENV=production node dist/app.js"
@@ -29,7 +29,7 @@
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
-    "redis": "^4.6.1",
+    "redis": "^4.6.12",
     "sharp": "^0.32.6",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^4.6.0",

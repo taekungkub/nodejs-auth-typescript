@@ -4,7 +4,6 @@ import swaggerUi from "swagger-ui-express";
 import bodyParser from "body-parser";
 import * as dotenv from "dotenv";
 import cors from "cors";
-
 import { MysqlServices } from "./config/mysqlService";
 import { createClient } from "redis";
 import { PassportService } from "./config/passportService";
@@ -36,7 +35,7 @@ MysqlServices.pool = mysql.createPool({
   user: dbConfig.user,
   database: dbConfig.database,
   password: dbConfig.password,
-  port: dbConfig.port,
+  port: Number(dbConfig.port),
 });
 
 MysqlServices.pool
@@ -47,7 +46,12 @@ MysqlServices.pool
 //------------ Redis Connection --------------//
 
 (async () => {
-  RedisService.cache = createClient();
+  RedisService.cache = createClient({
+    //@ts-ignore
+    host: RedisService.host,
+    port: RedisService.port,
+  });
+
   RedisService.cache
     .connect()
     .then(() => console.log("Connection to the redis "))
@@ -81,7 +85,7 @@ app.use(
 );
 
 //------------ Port ---------------------//
-const port = process.env.PORT || 8000;
+const port = process.env.SERVER_PORT || 8000;
 
 app.listen(port, () => {
   console.log(`⚡️ Environments: .env.${process.env.NODE_ENV}`);
